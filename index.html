@@ -3,22 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SeedUp - Aprende a Emprender</title>
-    <!-- Bust Cache -->
+    <title>SeedUp - Dashboard Emprendedor</title>
+    <!-- Cache Busting -->
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
     
-    <!-- Custom Scrollbar -->
-    <link rel="stylesheet" href="style.css?v=20">
+    <link rel="stylesheet" href="style.css?v=30">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-    
-    <!-- Chart.js -->
+    <!-- Librerías Externas -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script> <!-- Para notificaciones de eventos premium -->
     
-    <!-- Tailwind CSS (CDN for prototyping) -->
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -27,18 +25,10 @@
                 extend: {
                     colors: {
                         brand: {
-                            dark: '#05090f',      /* Fondo principal */
-                            card: '#0f172a',      /* Fondo de tarjetas */
-                            primary: '#00ff88',   /* Verde Neón */
-                            secondary: '#00d2ff', /* Cyan */
-                            danger: '#ef4444',
-                            warning: '#f59e0b',
+                            dark: '#05090f', card: '#0f172a', primary: '#00ff88', secondary: '#00d2ff', danger: '#ef4444', warning: '#f59e0b',
                         }
                     },
-                    fontFamily: {
-                        orbitron: ['Orbitron', 'sans-serif'],
-                        inter: ['Inter', 'sans-serif'],
-                    }
+                    fontFamily: { orbitron: ['Orbitron', 'sans-serif'], inter: ['Inter', 'sans-serif'], }
                 }
             }
         }
@@ -46,225 +36,225 @@
 </head>
 <body class="bg-brand-dark text-slate-300 font-inter h-screen overflow-hidden antialiased">
 
-    <!-- ==== PANTALLA DE LOGIN ==== -->
+    <!-- LOGIN -->
     <div id="login-view" class="fixed inset-0 z-50 flex items-center justify-center bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-[#0a1324] to-brand-dark transition-opacity duration-700">
-        <!-- Tarjeta estilo Glassmorphism con bordes sutiles -->
-        <div class="bg-[#0b111a]/90 backdrop-blur-xl border border-brand-primary/20 p-10 sm:p-12 rounded-3xl w-full max-w-[480px] shadow-[0_20px_50px_rgba(0,0,0,0.5),_0_0_30px_rgba(0,255,136,0.05)] transform transition-transform">
-            
+        <div class="bg-[#0b111a]/90 backdrop-blur-xl border border-brand-primary/20 p-10 sm:p-12 rounded-3xl w-full max-w-[480px] shadow-[0_20px_50px_rgba(0,0,0,0.5),_0_0_30px_rgba(0,255,136,0.05)]">
             <div class="text-center mb-10">
-                <span class="font-orbitron text-[2.5rem] font-black tracking-tight text-white">
-                    Seed<span class="text-brand-primary drop-shadow-[0_0_20px_rgba(0,255,136,0.5)]">Up</span>
-                </span>
+                <span class="font-orbitron text-[2.5rem] font-black tracking-tight text-white">Seed<span class="text-brand-primary drop-shadow-[0_0_20px_rgba(0,255,136,0.5)]">Up</span></span>
             </div>
-            
             <h2 class="font-orbitron text-2xl text-white mb-2">Iniciar Sesión</h2>
-            <p class="text-slate-400 mb-8 text-sm sm:text-base">Ingresa a tu cuenta para empezar a simular.</p>
-            
+            <p class="text-slate-400 mb-8 text-sm">Ingresa a tu cuenta para gestionar tu portafolio.</p>
             <form onsubmit="handleLogin(event)" class="space-y-6">
-                <div>
-                    <input type="email" placeholder="Correo universitario (@unitec.edu)" required 
-                        class="w-full bg-[#111926] border-2 border-slate-800/80 text-white px-5 py-4 rounded-xl outline-none focus:border-brand-primary focus:bg-[#152033] focus:shadow-[0_0_0_4px_rgba(0,255,136,0.1)] transition-all placeholder:text-slate-500">
-                </div>
-                <div>
-                    <input type="password" placeholder="Contraseña" required 
-                        class="w-full bg-[#111926] border-2 border-slate-800/80 text-white px-5 py-4 rounded-xl outline-none focus:border-brand-primary focus:bg-[#152033] focus:shadow-[0_0_0_4px_rgba(0,255,136,0.1)] transition-all placeholder:text-slate-500">
-                </div>
-                <button type="submit" class="w-full mt-2 bg-gradient-to-r from-brand-secondary to-brand-primary text-black font-orbitron font-bold text-lg py-4 rounded-xl hover:-translate-y-1 hover:shadow-[0_10px_25px_rgba(0,255,136,0.3)] transition-all duration-300">
-                    Entrar al Simulador
-                </button>
+                <input type="email" placeholder="Correo universitario (@unitec.edu)" required class="w-full bg-[#111926] border-2 border-slate-800 text-white px-5 py-4 rounded-xl outline-none focus:border-brand-primary focus:bg-[#152033] transition-all">
+                <input type="password" placeholder="Contraseña" required class="w-full bg-[#111926] border-2 border-slate-800 text-white px-5 py-4 rounded-xl outline-none focus:border-brand-primary focus:bg-[#152033] transition-all">
+                <button type="submit" class="w-full mt-2 bg-gradient-to-r from-brand-secondary to-brand-primary text-black font-orbitron font-bold text-lg py-4 rounded-xl hover:-translate-y-1 hover:shadow-[0_10px_25px_rgba(0,255,136,0.3)] transition-all">Entrar</button>
             </form>
         </div>
     </div>
 
-    <!-- ==== DASHBOARD LAYOUT ==== -->
+    <!-- DASHBOARD LAYOUT -->
     <div id="dashboard-layout" class="flex h-full opacity-0 pointer-events-none transition-opacity duration-700">
         
         <!-- SIDEBAR -->
-        <aside id="sidebar" class="fixed md:static inset-y-0 left-0 z-40 w-[260px] bg-[#0c1322] border-r border-slate-800 flex flex-col transform -translate-x-full md:translate-x-0 transition-transform duration-300 shadow-2xl md:shadow-none">
+        <aside id="sidebar" class="fixed md:static inset-y-0 left-0 z-40 w-[260px] bg-[#0c1322] border-r border-slate-800 flex flex-col transform -translate-x-full md:translate-x-0 transition-transform duration-300">
             <div class="h-20 flex items-center justify-between px-6 border-b border-slate-800/60">
-                <span class="font-orbitron text-2xl font-black text-white">
-                    Seed<span class="text-brand-primary drop-shadow-[0_0_15px_rgba(0,255,136,0.4)]">Up</span>
-                </span>
-                <button class="md:hidden text-slate-400 hover:text-white text-2xl" onclick="toggleSidebar()">✕</button>
+                <span class="font-orbitron text-2xl font-black text-white">Seed<span class="text-brand-primary">Up</span></span>
+                <button class="md:hidden text-slate-400 hover:text-white" onclick="toggleSidebar()">✕</button>
             </div>
-            
             <nav class="flex-1 px-4 py-6 space-y-2">
                 <a href="#" onclick="navigate('dashboard', this)" class="nav-item active flex items-center gap-4 px-4 py-3.5 rounded-xl text-slate-400 hover:bg-slate-800/40 hover:text-white transition-colors">
-                    <span class="text-xl">📊</span> <span class="font-medium text-[0.95rem]">Panel de Control</span>
+                    <span class="text-xl">📊</span> <span class="font-medium">Panel y Proyectos</span>
                 </a>
                 <a href="#" onclick="navigate('simulator', this)" class="nav-item flex items-center gap-4 px-4 py-3.5 rounded-xl text-slate-400 hover:bg-slate-800/40 hover:text-white transition-colors">
-                    <span class="text-xl">📈</span> <span class="font-medium text-[0.95rem]">Simulador Financiero</span>
+                    <span class="text-xl">📈</span> <span class="font-medium">Simulador Activo</span>
                 </a>
                 <a href="#" onclick="navigate('validator', this)" class="nav-item flex items-center gap-4 px-4 py-3.5 rounded-xl text-slate-400 hover:bg-slate-800/40 hover:text-white transition-colors">
-                    <span class="text-xl">✅</span> <span class="font-medium text-[0.95rem]">Validación de Ideas</span>
+                    <span class="text-xl">✅</span> <span class="font-medium">Validación</span>
                 </a>
             </nav>
-            
             <div class="p-4 border-t border-slate-800/60">
-                <a href="#" onclick="logout()" class="flex items-center gap-4 px-4 py-3 rounded-xl text-red-400/80 hover:bg-red-500/10 hover:text-red-400 transition-colors">
-                    <span class="text-xl">🚪</span> <span class="font-medium text-[0.95rem]">Cerrar Sesión</span>
+                <a href="#" onclick="logout()" class="flex items-center gap-4 px-4 py-3 rounded-xl text-red-400/80 hover:bg-red-500/10 transition-colors">
+                    <span class="text-xl">🚪</span> <span class="font-medium">Cerrar Sesión</span>
                 </a>
             </div>
         </aside>
 
-        <!-- MAIN CONTENT AREA -->
+        <!-- MAIN CONTENT -->
         <div class="flex-1 flex flex-col min-w-0">
-            
             <!-- TOPBAR -->
             <header class="h-20 bg-[#0c1322]/80 backdrop-blur-md border-b border-slate-800/60 flex items-center justify-between px-4 sm:px-8 z-30 sticky top-0">
                 <div class="flex items-center gap-4">
-                    <button class="md:hidden text-slate-300 hover:text-white text-2xl" onclick="toggleSidebar()">☰</button>
-                    <h1 id="topbar-title" class="font-orbitron text-lg sm:text-xl font-bold text-white hidden sm:block tracking-wide">Panel de Control</h1>
+                    <button class="md:hidden text-slate-300" onclick="toggleSidebar()">☰</button>
+                    <h1 id="topbar-title" class="font-orbitron text-lg sm:text-xl font-bold text-white hidden sm:block">Panel y Proyectos</h1>
                 </div>
-                <div class="flex items-center gap-4 sm:gap-6">
-                    <div class="text-right flex flex-col justify-center">
-                        <span class="text-[0.65rem] sm:text-xs font-bold text-brand-primary uppercase tracking-widest">Capital Semilla</span>
-                        <span id="balance-display" class="font-orbitron text-lg sm:text-xl font-bold text-white">S/ 10,000</span>
+                <div class="flex items-center gap-6">
+                    <div class="text-right">
+                        <span class="text-[0.65rem] sm:text-xs font-bold text-brand-primary uppercase">Capital Disponible</span>
+                        <div id="global-balance" class="font-orbitron text-lg sm:text-xl font-bold text-white">S/ 10,000</div>
                     </div>
-                    <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-brand-primary to-brand-secondary flex items-center justify-center text-black font-bold font-orbitron shadow-[0_0_15px_rgba(0,255,136,0.3)] border border-brand-primary/50">
-                        U
-                    </div>
+                    <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-brand-primary to-brand-secondary flex items-center justify-center text-black font-bold">U</div>
                 </div>
             </header>
 
-            <!-- VIEWS SCROLL AREA -->
             <main class="flex-1 overflow-y-auto p-4 sm:p-8 custom-scrollbar relative">
                 
-                <!-- ====== VISTA: DASHBOARD ====== -->
-                <section id="dashboard" class="view active space-y-6 sm:space-y-8 animate-[fadeUp_0.5s_ease_forwards]">
-                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                        
-                        <!-- WIDGET: Resumen -->
-                        <div class="bg-brand-card border border-slate-800 p-6 sm:p-8 rounded-2xl shadow-xl hover:border-slate-700 transition-colors">
-                            <h3 class="font-orbitron text-white text-lg mb-6 flex items-center gap-2"><span class="w-2 h-6 bg-brand-secondary rounded-full"></span> Resumen Financiero</h3>
-                            <div id="dash-balance" class="font-orbitron text-4xl sm:text-5xl text-white mb-2">S/ 10,000</div>
-                            <p class="text-brand-primary font-medium flex items-center gap-1.5 text-sm">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg>
-                                0% de retorno
-                            </p>
-                            
-                            <div class="grid grid-cols-2 gap-4 mt-8 pt-6 border-t border-slate-800/80">
-                                <div>
-                                    <div class="text-slate-500 text-xs font-semibold uppercase tracking-wider mb-1">Inversiones Activas</div>
-                                    <div class="font-orbitron text-2xl text-white">0</div>
-                                </div>
-                                <div>
-                                    <div class="text-slate-500 text-xs font-semibold uppercase tracking-wider mb-1">Beneficio / Pérdida</div>
-                                    <div id="dash-profit" class="font-orbitron text-2xl text-slate-400">S/ 0</div>
-                                </div>
+                <!-- ================== DASHBOARD ================== -->
+                <section id="dashboard" class="view active space-y-8 animate-[fadeUp_0.5s_ease_forwards]">
+                    
+                    <!-- Resumen & XP -->
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        <div class="lg:col-span-2 bg-brand-card border border-slate-800 p-6 rounded-2xl shadow-xl flex flex-col justify-center">
+                            <h3 class="font-orbitron text-white text-lg mb-4">Patrimonio Total (Líquido + Inversiones)</h3>
+                            <div id="total-networth" class="font-orbitron text-4xl sm:text-5xl text-white">S/ 10,000</div>
+                            <p class="text-slate-400 mt-2 text-sm">Tu objetivo es multiplicar este capital inicial.</p>
+                        </div>
+                        <div class="bg-brand-card border border-slate-800 p-6 rounded-2xl shadow-xl">
+                            <h3 class="font-orbitron text-white text-lg mb-4">Nivel Emprendedor</h3>
+                            <div class="flex justify-between items-end mb-2">
+                                <span id="user-level-text" class="text-brand-secondary font-bold">Nivel 1</span>
+                                <span id="user-xp-text" class="text-brand-primary font-bold">0 / 100 XP</span>
                             </div>
+                            <div class="h-2 w-full bg-slate-800 rounded-full overflow-hidden">
+                                <div id="user-xp-bar" class="h-full bg-gradient-to-r from-brand-secondary to-brand-primary w-[0%]"></div>
+                            </div>
+                            <p class="text-xs text-slate-500 mt-3">Gana XP avanzando meses y validando ideas.</p>
+                        </div>
+                    </div>
+
+                    <!-- Portafolio de Proyectos -->
+                    <div>
+                        <div class="flex justify-between items-center mb-6">
+                            <h2 class="font-orbitron text-2xl text-white">Mis Proyectos Activos</h2>
                         </div>
                         
-                        <!-- WIDGET: Progreso Educativo -->
-                        <div class="bg-brand-card border border-slate-800 p-6 sm:p-8 rounded-2xl shadow-xl hover:border-slate-700 transition-colors">
-                            <h3 class="font-orbitron text-white text-lg mb-6 flex items-center gap-2"><span class="w-2 h-6 bg-brand-primary rounded-full"></span> Progreso Educativo</h3>
-                            
-                            <div class="flex justify-between items-end mb-3">
-                                <div class="flex flex-col">
-                                    <span class="text-brand-secondary font-bold text-sm tracking-widest uppercase mb-1">Nivel 2</span>
-                                    <span class="text-white font-medium">Explorador de Ideas</span>
-                                </div>
-                                <span class="text-brand-primary font-bold">35%</span>
-                            </div>
-                            
-                            <div class="h-2.5 w-full bg-slate-800 rounded-full overflow-hidden mb-2">
-                                <div class="h-full bg-gradient-to-r from-brand-secondary to-brand-primary w-[35%] shadow-[0_0_10px_rgba(0,255,136,0.6)]"></div>
-                            </div>
-                            <p class="text-xs text-right text-slate-500 mb-8">650 XP restantes para subir de nivel</p>
-                            
-                            <h4 class="font-medium text-slate-400 text-sm mb-3 uppercase tracking-wider">Logros Recientes</h4>
-                            <ul class="space-y-3">
-                                <li class="flex items-center gap-3 text-sm bg-brand-dark p-3.5 rounded-xl border border-slate-800">
-                                    <div class="w-6 h-6 rounded-full bg-brand-primary/20 flex items-center justify-center text-brand-primary text-xs">✔</div>
-                                    <span class="text-slate-300">Primer Presupuesto Creado</span>
-                                </li>
-                                <li class="flex items-center gap-3 text-sm bg-brand-dark p-3.5 rounded-xl border border-slate-800">
-                                    <div class="w-6 h-6 rounded-full bg-yellow-500/20 flex items-center justify-center text-yellow-500 text-xs">⏳</div>
-                                    <span class="text-slate-400">Realizar tu primera inversión</span>
-                                </li>
-                            </ul>
+                        <div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6" id="projects-container">
+                            <!-- Aquí se inyectan las tarjetas de proyectos mediante JS -->
                         </div>
                         
+                        <!-- Formulario para Nuevo Proyecto -->
+                        <div class="mt-8 bg-[#111926] border border-slate-700 border-dashed p-6 rounded-2xl">
+                            <h3 class="font-orbitron text-white text-lg mb-4">Crear Nuevo Proyecto</h3>
+                            <form onsubmit="createNewProject(event)" class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
+                                <div class="md:col-span-1">
+                                    <label class="block text-xs text-slate-400 mb-1 uppercase">Nombre del Negocio</label>
+                                    <input type="text" id="new-proj-name" required class="w-full bg-slate-900 border border-slate-700 text-white px-3 py-2 rounded-lg outline-none focus:border-brand-primary">
+                                </div>
+                                <div class="md:col-span-1">
+                                    <label class="block text-xs text-slate-400 mb-1 uppercase">Modelo (Riesgo)</label>
+                                    <select id="new-proj-type" class="w-full bg-slate-900 border border-slate-700 text-white px-3 py-2 rounded-lg outline-none focus:border-brand-primary">
+                                        <option value="high">SaaS / App (Alto)</option>
+                                        <option value="medium">E-commerce (Medio)</option>
+                                        <option value="low">Franquicia (Bajo)</option>
+                                    </select>
+                                </div>
+                                <div class="md:col-span-1">
+                                    <label class="block text-xs text-slate-400 mb-1 uppercase">Inversión Inicial</label>
+                                    <input type="number" id="new-proj-amount" required min="100" step="100" class="w-full bg-slate-900 border border-slate-700 text-white px-3 py-2 rounded-lg outline-none focus:border-brand-primary">
+                                </div>
+                                <div class="md:col-span-1">
+                                    <button type="submit" class="w-full bg-brand-primary/20 text-brand-primary border border-brand-primary hover:bg-brand-primary hover:text-black font-bold py-2 rounded-lg transition-colors">
+                                        + Iniciar Proyecto
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
                     </div>
                 </section>
 
-                <!-- ====== VISTA: SIMULADOR ====== -->
+                <!-- ================== SIMULADOR ================== -->
                 <section id="simulator" class="view hidden space-y-6 animate-[fadeUp_0.5s_ease_forwards]">
                     <div class="bg-brand-card border border-slate-800 p-6 sm:p-8 rounded-2xl shadow-xl">
-                        <h2 class="font-orbitron text-2xl text-white mb-2">Simulador Financiero Avanzado</h2>
-                        <p class="text-slate-400 mb-8 text-sm sm:text-base">Proyecta la volatilidad y el rendimiento de tu capital semilla a 12 meses dependiendo del modelo de negocio que elijas.</p>
                         
-                        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10">
-                            <!-- Controles -->
+                        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4 border-b border-slate-800 pb-6">
+                            <div>
+                                <h2 class="font-orbitron text-2xl text-white">Simulador Mes a Mes</h2>
+                                <p class="text-slate-400 text-sm">Avanza en el tiempo y enfrenta los retos del mercado real.</p>
+                            </div>
+                            <!-- Selector de Proyecto -->
+                            <select id="sim-project-select" onchange="switchSimulatorProject()" class="bg-[#111926] border-2 border-brand-secondary/50 text-white px-4 py-2 rounded-xl outline-none focus:border-brand-secondary font-medium min-w-[200px]">
+                                <!-- Options inyectadas -->
+                            </select>
+                        </div>
+                        
+                        <div id="sim-empty-state" class="text-center py-12 hidden">
+                            <span class="text-4xl block mb-4">📂</span>
+                            <h3 class="text-white text-xl">No hay proyectos seleccionados</h3>
+                            <p class="text-slate-400 mt-2">Crea un proyecto en el Panel Principal para empezar a simular.</p>
+                        </div>
+
+                        <div id="sim-active-state" class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10">
+                            <!-- Controles e Info del Proyecto -->
                             <div class="lg:col-span-4 space-y-6">
-                                <div>
-                                    <label class="block text-sm font-semibold text-slate-400 uppercase tracking-wider mb-2">Modelo de Negocio (Riesgo)</label>
-                                    <select id="sim-type" class="w-full bg-[#111926] border border-slate-700 text-white px-4 py-3.5 rounded-xl outline-none focus:border-brand-primary focus:ring-1 focus:ring-brand-primary transition-all">
-                                        <option value="high">🚀 Startup SaaS Tech (Riesgo Alto)</option>
-                                        <option value="medium">🛒 E-commerce (Riesgo Medio)</option>
-                                        <option value="low">🏪 Franquicia Local (Riesgo Bajo)</option>
-                                    </select>
+                                <div class="bg-[#111926] p-5 rounded-xl border border-slate-800">
+                                    <div class="flex justify-between items-center mb-4">
+                                        <span class="text-slate-400 uppercase text-xs font-bold tracking-wider">Línea de Tiempo</span>
+                                        <span class="bg-brand-secondary/20 text-brand-secondary px-2 py-1 rounded text-xs font-bold" id="sim-month-badge">Mes 0 / 12</span>
+                                    </div>
+                                    <div class="mb-4">
+                                        <span class="text-slate-400 uppercase text-xs font-bold tracking-wider block mb-1">Valoración Actual</span>
+                                        <span class="font-orbitron text-3xl text-white" id="sim-current-val">S/ 0</span>
+                                        <span id="sim-profit-badge" class="ml-2 text-sm"></span>
+                                    </div>
+                                    
+                                    <button id="btn-advance-month" onclick="advanceMonth()" class="w-full bg-gradient-to-r from-brand-secondary to-brand-primary text-black font-orbitron font-bold text-lg py-3 rounded-xl hover:-translate-y-1 hover:shadow-[0_5px_15px_rgba(0,255,136,0.3)] transition-all flex items-center justify-center gap-2">
+                                        <span>⏳</span> Avanzar 1 Mes
+                                    </button>
+                                    
+                                    <button id="btn-liquidate" onclick="liquidateProject()" class="w-full mt-3 bg-red-500/20 text-red-400 border border-red-500 hover:bg-red-500 hover:text-white font-bold py-3 rounded-xl transition-all hidden">
+                                        Liquidar (Cerrar Empresa)
+                                    </button>
                                 </div>
-                                <div>
-                                    <label class="block text-sm font-semibold text-slate-400 uppercase tracking-wider mb-2">Monto a Invertir (S/)</label>
-                                    <input type="number" id="sim-amount" value="1000" min="100" step="100" class="w-full bg-[#111926] border border-slate-700 text-white px-4 py-3.5 rounded-xl outline-none focus:border-brand-primary focus:ring-1 focus:ring-brand-primary transition-all">
-                                </div>
-                                <button onclick="runSimulation()" class="w-full bg-gradient-to-r from-brand-secondary to-brand-primary text-black font-orbitron font-bold text-lg py-4 rounded-xl hover:-translate-y-1 hover:shadow-[0_10px_20px_rgba(0,255,136,0.3)] transition-all">
-                                    Simular 1 Año
-                                </button>
                                 
-                                <div id="sim-feedback" class="hidden p-4 rounded-xl text-sm font-medium border"></div>
+                                <!-- Registro de Eventos -->
+                                <div class="bg-slate-900 border border-slate-800 rounded-xl p-4 max-h-[250px] overflow-y-auto custom-scrollbar">
+                                    <h4 class="text-white font-medium mb-3 text-sm">Historial de Eventos</h4>
+                                    <ul id="sim-event-log" class="space-y-3 text-sm">
+                                        <!-- Eventos inyectados -->
+                                    </ul>
+                                </div>
                             </div>
                             
                             <!-- Gráfico -->
-                            <div class="lg:col-span-8 bg-[#0c1322] rounded-2xl border border-slate-800/80 p-4 sm:p-6 min-h-[350px] relative shadow-inner">
+                            <div class="lg:col-span-8 bg-[#0c1322] rounded-2xl border border-slate-800/80 p-4 sm:p-6 min-h-[400px] relative shadow-inner">
                                 <canvas id="investmentChart"></canvas>
                             </div>
                         </div>
                     </div>
                 </section>
 
-                <!-- ====== VISTA: VALIDADOR ====== -->
+                <!-- ================== VALIDADOR ================== -->
                 <section id="validator" class="view hidden animate-[fadeUp_0.5s_ease_forwards]">
                     <div class="bg-brand-card border border-slate-800 p-6 sm:p-10 rounded-2xl shadow-xl max-w-4xl mx-auto">
-                        <h2 class="font-orbitron text-2xl text-white mb-2">Validación Lean Startup</h2>
-                        <p class="text-slate-400 mb-8 text-sm sm:text-base">No inviertas dinero a ciegas. Marca los hitos que ya has completado para que el sistema calcule el nivel de viabilidad de tu idea.</p>
                         
-                        <form onsubmit="validateIdea(event)" class="space-y-4">
-                            <label class="flex items-start gap-4 p-5 bg-[#111926] border border-slate-700 rounded-xl cursor-pointer hover:border-brand-primary/50 hover:bg-[#152033] transition-all group">
-                                <div class="relative flex items-center justify-center mt-0.5">
-                                    <input type="checkbox" class="custom-checkbox appearance-none w-6 h-6 border-2 border-slate-500 rounded bg-transparent checked:bg-brand-primary checked:border-brand-primary transition-colors cursor-pointer">
-                                </div>
-                                <span class="text-slate-300 group-hover:text-white transition-colors">He entrevistado a 5 clientes potenciales (Problem/Solution Fit).</span>
-                            </label>
+                        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
+                            <div>
+                                <h2 class="font-orbitron text-2xl text-white">Validación Lean Startup</h2>
+                                <p class="text-slate-400 text-sm">Valida las hipótesis de tu proyecto específico.</p>
+                            </div>
+                            <select id="val-project-select" onchange="switchValProject()" class="bg-[#111926] border-2 border-brand-secondary/50 text-white px-4 py-2 rounded-xl outline-none focus:border-brand-secondary font-medium min-w-[200px]">
+                            </select>
+                        </div>
+                        
+                        <div id="val-empty-state" class="text-center py-12 hidden">
+                            <span class="text-4xl block mb-4">📝</span>
+                            <h3 class="text-white text-xl">Sin proyectos</h3>
+                            <p class="text-slate-400">Crea un proyecto primero para acceder a su checklist.</p>
+                        </div>
 
-                            <label class="flex items-start gap-4 p-5 bg-[#111926] border border-slate-700 rounded-xl cursor-pointer hover:border-brand-primary/50 hover:bg-[#152033] transition-all group">
-                                <div class="relative flex items-center justify-center mt-0.5">
-                                    <input type="checkbox" class="custom-checkbox appearance-none w-6 h-6 border-2 border-slate-500 rounded bg-transparent checked:bg-brand-primary checked:border-brand-primary transition-colors cursor-pointer">
-                                </div>
-                                <span class="text-slate-300 group-hover:text-white transition-colors">Tengo definido el perfil demográfico de mi cliente ideal (Buyer Persona).</span>
-                            </label>
+                        <div id="val-active-state">
+                            <div class="bg-brand-secondary/10 border border-brand-secondary/30 p-4 rounded-xl mb-6 flex items-start gap-3">
+                                <span class="text-xl">💡</span>
+                                <p class="text-brand-secondary/90 text-sm">Cada hito validado otorga <strong>+20 XP</strong> a tu perfil de emprendedor. Marca solo lo que realmente has comprobado en la vida real con tu proyecto.</p>
+                            </div>
 
-                            <label class="flex items-start gap-4 p-5 bg-[#111926] border border-slate-700 rounded-xl cursor-pointer hover:border-brand-primary/50 hover:bg-[#152033] transition-all group">
-                                <div class="relative flex items-center justify-center mt-0.5">
-                                    <input type="checkbox" class="custom-checkbox appearance-none w-6 h-6 border-2 border-slate-500 rounded bg-transparent checked:bg-brand-primary checked:border-brand-primary transition-colors cursor-pointer">
-                                </div>
-                                <span class="text-slate-300 group-hover:text-white transition-colors">Conozco al menos 2 competidores y sé cómo me diferencio.</span>
-                            </label>
-
-                            <label class="flex items-start gap-4 p-5 bg-[#111926] border border-slate-700 rounded-xl cursor-pointer hover:border-brand-primary/50 hover:bg-[#152033] transition-all group">
-                                <div class="relative flex items-center justify-center mt-0.5">
-                                    <input type="checkbox" class="custom-checkbox appearance-none w-6 h-6 border-2 border-slate-500 rounded bg-transparent checked:bg-brand-primary checked:border-brand-primary transition-colors cursor-pointer">
-                                </div>
-                                <span class="text-slate-300 group-hover:text-white transition-colors">Calculé mis costos operativos y tengo un modelo de monetización claro.</span>
-                            </label>
+                            <div class="space-y-4" id="validator-checklist">
+                                <!-- Checkboxes generados dinámicamente -->
+                            </div>
                             
-                            <button type="submit" class="w-full bg-gradient-to-r from-brand-secondary to-brand-primary text-black font-orbitron font-bold text-lg py-4 rounded-xl hover:-translate-y-1 hover:shadow-[0_10px_20px_rgba(0,255,136,0.3)] transition-all mt-8">
-                                Generar Diagnóstico de Viabilidad
-                            </button>
-                        </form>
-                        
-                        <div id="val-result" class="hidden mt-6 p-6 rounded-xl border font-medium"></div>
+                            <div id="val-result-box" class="mt-8 p-6 rounded-xl border border-slate-700 bg-[#111926] text-center font-medium">
+                                Selecciona hitos para ver el diagnóstico del proyecto.
+                            </div>
+                        </div>
                     </div>
                 </section>
                 
@@ -272,7 +262,6 @@
         </div>
     </div>
 
-    <!-- Cargar JS con cache-busting -->
-    <script src="app.js?v=20"></script>
+    <script src="app.js?v=30"></script>
 </body>
 </html>
