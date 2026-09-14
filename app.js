@@ -18,22 +18,32 @@ function loadState() {
     const saved = localStorage.getItem('seedup_data');
     if (saved) {
         appData = JSON.parse(saved);
-        // Compatibilidad hacia atrás si faltan propiedades en caché
         if(!appData.projects) appData.projects = [];
     }
-}
-
-function resetState() {
-    appData = { balance: 10000, xp: 0, level: 1, projects: [], activeProjectId: null };
-    saveState();
 }
 
 // Inicialización de la app
 document.addEventListener('DOMContentLoaded', () => {
     loadState();
-    // Renderizamos si ya estamos logueados (para esta demo forzamos inicio limpio)
-    // updateGlobalUI();
 });
+
+// ==========================================
+// THEME TOGGLE (LIGHT / DARK)
+// ==========================================
+function toggleTheme() {
+    const htmlObj = document.documentElement;
+    if (htmlObj.classList.contains('dark')) {
+        htmlObj.classList.remove('dark');
+        localStorage.setItem('color-theme', 'light');
+    } else {
+        htmlObj.classList.add('dark');
+        localStorage.setItem('color-theme', 'dark');
+    }
+    // Update chart if exists
+    if (investmentChart) {
+        updateChartTheme();
+    }
+}
 
 // ==========================================
 // AUTENTICACIÓN Y UI GLOBAL
@@ -51,7 +61,6 @@ function handleLogin(event) {
         dashboardLayout.classList.remove('hidden');
         setTimeout(() => dashboardLayout.classList.remove('opacity-0', 'pointer-events-none'), 50);
         
-        // Cargar UI completa
         updateGlobalUI();
         renderDashboardProjects();
         populateProjectSelects();
@@ -69,37 +78,40 @@ function logout() {
         loginView.classList.add('flex');
         setTimeout(() => loginView.classList.remove('opacity-0'), 50);
         
-        navigate('dashboard', document.querySelector('.nav-item'));
+        navigate('dashboard', document.querySelector('.nav-item'), 'Dashboard');
     }, 500);
 }
 
 function updateGlobalUI() {
-    // Formatear balances
     const fmt = (num) => `S/ ${Math.floor(num).toLocaleString('es-PE')}`;
     
-    document.getElementById('global-balance').innerText = fmt(appData.balance);
+    document.getElementById('stat-balance').innerText = fmt(appData.balance);
     
-    // Calcular Patrimonio Total (Balance Líquido + Valoraciones Actuales de Proyectos)
     let totalInvestedValue = 0;
+    let activeCount = 0;
     appData.projects.forEach(p => {
-        if (p.status === 'active') totalInvestedValue += p.currentValue;
+        if (p.status === 'active') {
+            totalInvestedValue += p.currentValue;
+            activeCount++;
+        }
     });
-    document.getElementById('total-networth').innerText = fmt(appData.balance + totalInvestedValue);
     
-    // Nivel y XP
-    // Cada 100 XP = 1 Nivel
+    document.getElementById('total-networth').innerText = fmt(appData.balance + totalInvestedValue);
+    document.getElementById('stat-projects').innerText = activeCount;
+    document.getElementById('stat-done').innerText = appData.projects.filter(p => p.status === 'liquidated').length;
+    
     appData.level = Math.floor(appData.xp / 100) + 1;
     const xpInLevel = appData.xp % 100;
     
     document.getElementById('user-level-text').innerText = `Nivel ${appData.level}`;
-    document.getElementById('user-xp-text').innerText = `${xpInLevel} / 100 XP`;
+    document.getElementById('user-xp-text').innerText = `${xpInLevel}/100`;
     document.getElementById('user-xp-bar').style.width = `${xpInLevel}%`;
 }
 
 // ==========================================
 // NAVEGACIÓN
 // ==========================================
-function navigate(viewId, element) {
+function navigate(viewId, element, breadcrumbText) {
     document.querySelectorAll('.view').forEach(view => {
         view.classList.remove('active', 'hidden');
         view.classList.add('hidden');
@@ -107,22 +119,32 @@ function navigate(viewId, element) {
     
     const target = document.getElementById(viewId);
     target.classList.remove('hidden');
-    // Hack para trigger de animación
     target.style.animation = 'none';
     target.offsetHeight; 
     target.style.animation = null; 
     target.classList.add('active');
     
     if (element) {
-        document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
-        element.classList.add('active');
-        document.getElementById('topbar-title').innerText = element.querySelector('.font-medium').innerText;
+        // Reset all links styling
+        document.querySelectorAll('.nav-item').forEach(el => {
+            el.className = "nav-item flex items-center gap-4 px-4 py-3 rounded-xl text-gray-500 dark:text-slate-400 hover:bg-gray-50 dark:hover:bg-slate-800 transition-all font-medium";
+            const iconSpan = el.querySelector('span');
+            if(iconSpan) iconSpan.className = "bg-gray-100 dark:bg-slate-800 p-1.5 rounded-lg text-sm group-hover:bg-white";
+        });
+        
+        // Active link styling (Creative Tim style: dark pill in light mode, primary pill in dark mode)
+        element.className = "nav-item active flex items-center gap-4 px-4 py-3 rounded-xl bg-gray-900 text-white dark:bg-brand-primary dark:text-gray-900 font-medium shadow-md transition-all";
+        const iconSpan = element.querySelector('span');
+        if(iconSpan) iconSpan.className = "bg-white/20 dark:bg-black/10 p-1.5 rounded-lg text-sm";
+        
+        // Update Titles
+        document.getElementById('topbar-title').innerText = breadcrumbText;
+        document.getElementById('breadcrumb-current').innerText = breadcrumbText;
     }
     
     const sidebar = document.getElementById('sidebar');
     if(!sidebar.classList.contains('-translate-x-full')) toggleSidebar();
     
-    // Lógica por vista
     if (viewId === 'dashboard') renderDashboardProjects();
     if (viewId === 'simulator') {
         populateProjectSelects();
@@ -143,6 +165,13 @@ function toggleSidebar() {
 // ==========================================
 const typeLabels = { high: '🚀 Startup Tech', medium: '🛒 E-commerce', low: '🏪 Franquicia' };
 
+function getSwalBg() {
+    return document.documentElement.classList.contains('dark') ? '#0f172a' : '#ffffff';
+}
+function getSwalColor() {
+    return document.documentElement.classList.contains('dark') ? '#fff' : '#1f2937';
+}
+
 function createNewProject(event) {
     event.preventDefault();
     const name = document.getElementById('new-proj-name').value;
@@ -150,35 +179,23 @@ function createNewProject(event) {
     const amount = parseFloat(document.getElementById('new-proj-amount').value);
     
     if (amount > appData.balance) {
-        Swal.fire({ icon: 'error', title: 'Fondos insuficientes', text: 'No tienes suficiente capital semilla.', background: '#0f172a', color: '#fff', confirmButtonColor: '#ef4444' });
+        Swal.fire({ icon: 'error', title: 'Fondos insuficientes', text: 'No tienes suficiente capital líquido.', background: getSwalBg(), color: getSwalColor(), confirmButtonColor: '#ef4444' });
         return;
     }
     
-    // Restar capital
     appData.balance -= amount;
     
-    // Crear objeto
     const newProject = {
         id: 'proj_' + Date.now(),
-        name: name,
-        type: type,
-        initialAmount: amount,
-        currentValue: amount,
-        month: 0,
-        history: [amount], // valor mes a mes
-        events: [],
-        validation: [false, false, false, false],
-        status: 'active' // active, liquidated
+        name: name, type: type, initialAmount: amount, currentValue: amount, month: 0, history: [amount], events: [], validation: [false, false, false, false], status: 'active'
     };
     
     appData.projects.push(newProject);
-    appData.activeProjectId = newProject.id; // Auto seleccionar
+    appData.activeProjectId = newProject.id; 
     saveState();
     
-    // Reset Form
     event.target.reset();
-    
-    Swal.fire({ icon: 'success', title: '¡Proyecto Creado!', text: `Has fundado ${name}. Ve al Simulador para empezar a operar.`, background: '#0f172a', color: '#fff', confirmButtonColor: '#00ff88' });
+    Swal.fire({ icon: 'success', title: '¡Proyecto Fundado!', text: `Has iniciado ${name}.`, background: getSwalBg(), color: getSwalColor(), confirmButtonColor: '#00ff88' });
     
     renderDashboardProjects();
     populateProjectSelects();
@@ -189,38 +206,39 @@ function renderDashboardProjects() {
     container.innerHTML = '';
     
     if (appData.projects.length === 0) {
-        container.innerHTML = `<div class="col-span-full text-center py-10 bg-brand-dark rounded-xl border border-slate-800"><p class="text-slate-500">Aún no tienes negocios. Crea tu primer proyecto abajo.</p></div>`;
+        container.innerHTML = `<div class="col-span-full text-center py-10 bg-gray-50 dark:bg-slate-900 rounded-xl border border-dashed border-gray-300 dark:border-slate-700"><p class="text-gray-500 dark:text-slate-500 font-medium">Aún no hay empresas en el portafolio.</p></div>`;
         return;
     }
     
     appData.projects.forEach(p => {
         const profit = p.currentValue - p.initialAmount;
         const profitPerc = ((profit / p.initialAmount) * 100).toFixed(1);
-        const profitColor = profit >= 0 ? 'text-brand-primary' : 'text-red-400';
+        const profitColor = profit >= 0 ? 'text-green-500' : 'text-red-500';
         
         let actions = p.status === 'active' 
-            ? `<button onclick="jumpToSim('${p.id}')" class="text-sm bg-brand-secondary/20 text-brand-secondary hover:bg-brand-secondary hover:text-black px-3 py-1.5 rounded transition-colors">Abrir Simulador</button>`
-            : `<span class="text-xs bg-slate-800 text-slate-400 px-3 py-1.5 rounded">Liquidado (Cerrado)</span>`;
+            ? `<button onclick="jumpToSim('${p.id}')" class="text-xs font-bold text-gray-800 dark:text-white hover:text-brand-primary dark:hover:text-brand-primary uppercase tracking-wider transition-colors">Abrir Simulador ➔</button>`
+            : `<span class="text-xs font-bold text-gray-400 dark:text-slate-500 uppercase">Cerrado</span>`;
 
         container.innerHTML += `
-            <div class="bg-[#111926] border ${p.id === appData.activeProjectId ? 'border-brand-primary' : 'border-slate-800'} p-5 rounded-2xl flex flex-col justify-between">
+            <div class="bg-gray-50 dark:bg-slate-900 border ${p.id === appData.activeProjectId ? 'border-gray-800 dark:border-brand-primary shadow-sm' : 'border-gray-200 dark:border-slate-700'} p-5 rounded-2xl flex flex-col justify-between hover:-translate-y-1 transition-transform">
                 <div>
-                    <div class="flex justify-between items-start mb-2">
-                        <h4 class="font-orbitron font-bold text-white text-lg truncate">${p.name}</h4>
-                        <span class="text-[0.65rem] px-2 py-1 rounded bg-slate-800 text-slate-300 uppercase">${typeLabels[p.type]}</span>
+                    <div class="flex justify-between items-start mb-4">
+                        <h4 class="font-orbitron font-bold text-gray-800 dark:text-white text-lg truncate pr-2">${p.name}</h4>
+                        <span class="text-[0.65rem] px-2 py-1 rounded-md bg-white dark:bg-slate-800 text-gray-500 dark:text-slate-300 uppercase font-bold border border-gray-200 dark:border-slate-700">${typeLabels[p.type].split(' ')[1]}</span>
                     </div>
-                    <div class="mt-4 flex justify-between items-end">
+                    <div class="flex justify-between items-end bg-white dark:bg-brand-darkcard p-3 rounded-xl border border-gray-100 dark:border-slate-800">
                         <div>
-                            <span class="text-xs text-slate-500 block mb-1">Valoración / Mes ${p.month}</span>
-                            <span class="font-orbitron text-xl text-white">S/ ${Math.floor(p.currentValue).toLocaleString()}</span>
+                            <span class="text-xs text-gray-500 dark:text-slate-400 font-bold uppercase mb-1 block">Valor Actual</span>
+                            <span class="font-orbitron text-lg font-bold text-gray-800 dark:text-white">S/ ${Math.floor(p.currentValue).toLocaleString()}</span>
                         </div>
                         <div class="text-right">
-                            <span class="text-xs text-slate-500 block mb-1">Retorno</span>
-                            <span class="font-bold ${profitColor}">${profit >= 0 ? '+' : ''}${profitPerc}%</span>
+                            <span class="text-xs text-gray-500 dark:text-slate-400 font-bold uppercase mb-1 block">Retorno</span>
+                            <span class="font-bold text-sm ${profitColor}">${profit >= 0 ? '+' : ''}${profitPerc}%</span>
                         </div>
                     </div>
                 </div>
-                <div class="mt-5 pt-4 border-t border-slate-800 flex justify-between items-center">
+                <div class="mt-4 pt-4 border-t border-gray-200 dark:border-slate-800/80 flex justify-between items-center">
+                    <span class="text-xs text-gray-500 dark:text-slate-400 font-bold">Mes ${p.month}</span>
                     ${actions}
                 </div>
             </div>
@@ -231,7 +249,7 @@ function renderDashboardProjects() {
 function jumpToSim(id) {
     appData.activeProjectId = id;
     saveState();
-    navigate('simulator', document.querySelectorAll('.nav-item')[1]);
+    navigate('simulator', document.querySelectorAll('.nav-item')[1], 'Simulador');
 }
 
 function populateProjectSelects() {
@@ -241,7 +259,6 @@ function populateProjectSelects() {
     simSelect.innerHTML = ''; valSelect.innerHTML = '';
     
     appData.projects.forEach(p => {
-        // Solo mostrar activos en el simulador, o mostrar todos con tag
         const tag = p.status === 'liquidated' ? ' (Cerrado)' : '';
         const option = `<option value="${p.id}">${p.name}${tag}</option>`;
         simSelect.innerHTML += option;
@@ -254,27 +271,26 @@ function populateProjectSelects() {
     }
 }
 
-
 // ==========================================
-// SIMULADOR AVANZADO E INTERACTIVO
+// SIMULADOR AVANZADO
 // ==========================================
 let investmentChart = null;
 
 const eventCards = {
     high: [
-        { msg: "¡Un influencer recomendó tu App!", mod: 0.8, type: 'good' }, // +80% shock
-        { msg: "Caída del servidor principal (AWS). Usuarios furiosos.", mod: -0.5, type: 'bad' },
-        { msg: "Ronda de capital exitosa. Entra nuevo flujo.", mod: 0.5, type: 'good' },
-        { msg: "Demanda por copyright de un competidor.", mod: -0.6, type: 'bad' }
+        { msg: "¡Product Hunt #1! Entra gran demanda.", mod: 0.8, type: 'good' }, 
+        { msg: "Servidor caído. Usuarios exigen reembolso.", mod: -0.5, type: 'bad' },
+        { msg: "Levantaste capital semilla de Angel Investor.", mod: 0.5, type: 'good' },
+        { msg: "Bug crítico borra bases de datos.", mod: -0.6, type: 'bad' }
     ],
     medium: [
-        { msg: "Campaña en TikTok se hizo viral localmente.", mod: 0.3, type: 'good' },
-        { msg: "Problemas con el proveedor en China. Falta de stock.", mod: -0.2, type: 'bad' },
-        { msg: "Festividad local aumenta las compras.", mod: 0.2, type: 'good' }
+        { msg: "Viral en Instagram Reels. Ventas suben.", mod: 0.3, type: 'good' },
+        { msg: "Problema aduanero retiene tu inventario.", mod: -0.2, type: 'bad' },
+        { msg: "Black Friday exitoso.", mod: 0.2, type: 'good' }
     ],
     low: [
-        { msg: "Aumento leve en la zona peatonal del local.", mod: 0.05, type: 'good' },
-        { msg: "Reparaciones en la calle dificultan el acceso.", mod: -0.05, type: 'bad' }
+        { msg: "Alcaldía repara aceras mejorando tránsito.", mod: 0.05, type: 'good' },
+        { msg: "Corte de agua en el sector afecta el día.", mod: -0.05, type: 'bad' }
     ]
 };
 
@@ -292,6 +308,7 @@ function switchSimulatorProject(forceId) {
     
     document.getElementById('sim-empty-state').classList.add('hidden');
     document.getElementById('sim-active-state').classList.remove('hidden');
+    document.getElementById('sim-active-state').className = "p-6 grid grid-cols-1 lg:grid-cols-12 gap-8"; // ensure it restores grid
     
     renderSimulatorState(p);
 }
@@ -301,11 +318,16 @@ function renderSimulatorState(p) {
     document.getElementById('sim-current-val').innerText = `S/ ${Math.floor(p.currentValue).toLocaleString()}`;
     
     const profit = p.currentValue - p.initialAmount;
-    const badge = document.getElementById('sim-profit-badge');
-    badge.innerText = `${profit >= 0 ? '+' : ''}S/ ${Math.floor(profit).toLocaleString()}`;
-    badge.className = `ml-2 text-sm font-bold px-2 py-1 rounded ${profit >= 0 ? 'bg-brand-primary/20 text-brand-primary' : 'bg-red-500/20 text-red-500'}`;
+    const profitPerc = ((profit / p.initialAmount) * 100).toFixed(1);
     
-    // Botones
+    const badge = document.getElementById('sim-profit-badge');
+    badge.innerText = `${profit >= 0 ? '+' : ''}${profitPerc}%`;
+    badge.className = `text-sm font-bold mb-1 ${profit >= 0 ? 'text-green-500' : 'text-red-500'}`;
+    
+    const textHeader = document.getElementById('sim-month-text');
+    textHeader.innerText = `(${profit >= 0 ? '+' : ''}${profitPerc}%)`;
+    textHeader.className = `font-bold ${profit >= 0 ? 'text-green-500' : 'text-red-500'}`;
+    
     const btnAdv = document.getElementById('btn-advance-month');
     const btnLiq = document.getElementById('btn-liquidate');
     
@@ -323,47 +345,69 @@ function renderSimulatorState(p) {
         btnLiq.innerText = "Liquidar antes de tiempo";
     }
     
-    // Log de Eventos
     const log = document.getElementById('sim-event-log');
-    log.innerHTML = p.events.length === 0 ? '<li class="text-slate-500 italic">No hay eventos aún. Avanza un mes.</li>' : '';
+    log.innerHTML = p.events.length === 0 ? '<li class="text-gray-400 dark:text-slate-500 italic p-3 border border-dashed border-gray-200 dark:border-slate-700 rounded-lg">Avanza un mes para empezar...</li>' : '';
     
     p.events.forEach(e => {
-        const color = e.type === 'good' ? 'text-brand-primary' : (e.type === 'bad' ? 'text-red-400' : 'text-slate-300');
-        log.innerHTML = `<li class="${color} flex gap-2"><span class="text-slate-500">[Mes ${e.month}]</span> ${e.msg}</li>` + log.innerHTML;
+        const color = e.type === 'good' ? 'text-green-500' : (e.type === 'bad' ? 'text-red-500' : 'text-gray-500 dark:text-slate-400');
+        log.innerHTML = `<li class="${color} flex gap-2 border-b border-gray-100 dark:border-slate-800 pb-2"><span class="text-gray-400 dark:text-slate-500 font-bold">[M${e.month}]</span> ${e.msg}</li>` + log.innerHTML;
     });
 
     drawChart(p);
 }
 
+function updateChartTheme() {
+    if (!investmentChart) return;
+    const isDark = document.documentElement.classList.contains('dark');
+    
+    investmentChart.options.scales.x.ticks.color = isDark ? '#94a3b8' : '#64748b';
+    investmentChart.options.scales.y.ticks.color = isDark ? '#94a3b8' : '#64748b';
+    investmentChart.options.scales.x.grid.color = isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)';
+    investmentChart.options.scales.y.grid.color = isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)';
+    
+    investmentChart.update();
+}
+
 function drawChart(p) {
+    const isDark = document.documentElement.classList.contains('dark');
+    
     if (!investmentChart) {
         const ctx = document.getElementById('investmentChart').getContext('2d');
+        // The image shows a beautiful bright green chart with white text usually
         investmentChart = new Chart(ctx, {
             type: 'line',
-            data: { labels: [], datasets: [{ label: 'Valoración (S/)', data: [], borderColor: '#00d2ff', backgroundColor: 'rgba(0, 210, 255, 0.1)', borderWidth: 3, fill: true, tension: 0.1 }] },
+            data: { labels: [], datasets: [{ label: 'Valoración', data: [], borderColor: '#4ade80', backgroundColor: 'rgba(74, 222, 128, 0.1)', borderWidth: 3, fill: true, tension: 0.3, pointBackgroundColor: '#fff', pointBorderColor: '#4ade80', pointBorderWidth: 2 }] },
             options: {
                 responsive: true, maintainAspectRatio: false,
+                plugins: { legend: { display: false } }, // Hide legend to match image
                 scales: {
-                    y: { grid: { color: 'rgba(30,41,59,0.5)' }, ticks: { color: '#94a3b8' } },
-                    x: { grid: { color: 'rgba(30,41,59,0.5)' }, ticks: { color: '#94a3b8' } }
+                    y: { grid: { color: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)' }, ticks: { color: isDark ? '#94a3b8' : '#64748b', font: {family: 'Inter'} } },
+                    x: { grid: { color: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)' }, ticks: { color: isDark ? '#94a3b8' : '#64748b', font: {family: 'Inter'} } }
                 }
             }
         });
     }
     
     const labels = [];
-    for(let i=0; i<=12; i++) labels.push(`Mes ${i}`);
+    for(let i=0; i<=12; i++) labels.push(`M${i}`);
     
-    // Rellenar lo que falta con nulls para que la gráfica llegue hasta el 12 visualmente
     const dataPad = [...p.history];
     while(dataPad.length <= 12) dataPad.push(null);
     
     investmentChart.data.labels = labels;
     investmentChart.data.datasets[0].data = dataPad;
     
+    // Smooth beautiful chart colors
     const profit = p.currentValue - p.initialAmount;
-    investmentChart.data.datasets[0].borderColor = profit >= 0 ? '#00ff88' : '#ef4444';
-    investmentChart.data.datasets[0].backgroundColor = profit >= 0 ? 'rgba(0,255,136,0.1)' : 'rgba(239,68,68,0.1)';
+    if (profit >= 0) {
+        investmentChart.data.datasets[0].borderColor = '#4ade80'; // Bright Green
+        investmentChart.data.datasets[0].backgroundColor = 'rgba(74, 222, 128, 0.1)';
+        investmentChart.data.datasets[0].pointBorderColor = '#4ade80';
+    } else {
+        investmentChart.data.datasets[0].borderColor = '#f87171'; // Red
+        investmentChart.data.datasets[0].backgroundColor = 'rgba(248, 113, 113, 0.1)';
+        investmentChart.data.datasets[0].pointBorderColor = '#f87171';
+    }
     
     investmentChart.update();
 }
@@ -374,32 +418,24 @@ function advanceMonth() {
     
     p.month++;
     
-    // Lógica financiera Random Walk
     let volatility = p.type === 'high' ? 0.3 : (p.type === 'medium' ? 0.12 : 0.04);
     let drift = p.type === 'high' ? 0.03 : (p.type === 'medium' ? 0.015 : 0.005);
     
-    // Shock aleatorio estándar (-1 a 1)
     let shock = (Math.random() + Math.random() + Math.random() - 1.5) * 2; 
     
-    // Verificación de "Evento Sorpresa" (20% de prob)
-    let eventHappened = null;
     if (Math.random() < 0.20) {
         const eventsArr = eventCards[p.type];
         const randomEvt = eventsArr[Math.floor(Math.random() * eventsArr.length)];
         shock += randomEvt.mod;
-        eventHappened = { month: p.month, msg: randomEvt.msg, type: randomEvt.type };
-        p.events.push(eventHappened);
-        
-        // Bonus de XP por sobrevivir eventos
+        p.events.push({ month: p.month, msg: randomEvt.msg, type: randomEvt.type });
         appData.xp += 10;
         
-        // Notificación Visual Premium
         Swal.fire({
             toast: true, position: 'top-end', showConfirmButton: false, timer: 4000,
             icon: randomEvt.type === 'good' ? 'success' : 'warning',
-            title: `Mes ${p.month}: Evento Inesperado`,
+            title: `Mes ${p.month}: Noticia del Mercado`,
             text: randomEvt.msg,
-            background: '#0f172a', color: '#fff'
+            background: getSwalBg(), color: getSwalColor()
         });
     }
 
@@ -409,19 +445,17 @@ function advanceMonth() {
     
     p.history.push(p.currentValue);
     
-    // Si la empresa quiebra
-    if (p.currentValue < (p.initialAmount * 0.05)) { // Queda menos del 5%
+    if (p.currentValue < (p.initialAmount * 0.05)) { 
         p.status = 'liquidated';
-        p.events.push({month: p.month, msg: '¡QUIEBRA TOTAL! El proyecto se quedó sin liquidez.', type:'bad'});
-        Swal.fire({ icon: 'error', title: 'Bancarrota', text: 'Tu negocio ha quebrado. Aprende de los errores e inicia otro.', background: '#0f172a', color: '#fff', confirmButtonColor: '#ef4444' });
+        p.events.push({month: p.month, msg: 'BANCARROTA. Operaciones detenidas.', type:'bad'});
+        Swal.fire({ icon: 'error', title: 'Quiebra Total', text: 'Te quedaste sin liquidez.', background: getSwalBg(), color: getSwalColor(), confirmButtonColor: '#ef4444' });
     }
 
-    // Al llegar al mes 12
     if (p.month === 12 && p.status === 'active') {
-        Swal.fire({ icon: 'success', title: '¡Año Completado!', text: 'El año fiscal ha terminado. Puedes liquidar el proyecto y retornar las ganancias a tu capital central.', background: '#0f172a', color: '#fff', confirmButtonColor: '#00ff88' });
+        Swal.fire({ icon: 'success', title: 'Ejercicio Fiscal Completado', text: 'Puedes retirar los dividendos al dashboard.', background: getSwalBg(), color: getSwalColor(), confirmButtonColor: '#00ff88' });
     }
 
-    appData.xp += 5; // XP por sobrevivir un mes
+    appData.xp += 5;
     saveState();
     renderSimulatorState(p);
 }
@@ -431,23 +465,23 @@ function liquidateProject() {
     if(!p || p.status !== 'active') return;
     
     Swal.fire({
-        title: '¿Liquidar Proyecto?',
-        text: `Venderás las acciones y retornarás S/ ${Math.floor(p.currentValue).toLocaleString()} a tu capital central.`,
+        title: '¿Liquidar Posición?',
+        text: `Retornarás S/ ${Math.floor(p.currentValue).toLocaleString()} al balance general.`,
         icon: 'question',
         showCancelButton: true,
-        confirmButtonColor: '#00ff88',
+        confirmButtonColor: '#10b981', // Tailwind Emerald 500
         cancelButtonColor: '#ef4444',
-        confirmButtonText: 'Sí, Liquidar',
+        confirmButtonText: 'Confirmar',
         cancelButtonText: 'Cancelar',
-        background: '#0f172a', color: '#fff'
+        background: getSwalBg(), color: getSwalColor()
     }).then((result) => {
         if (result.isConfirmed) {
             p.status = 'liquidated';
             appData.balance += p.currentValue;
-            p.events.push({month: p.month, msg: 'Proyecto liquidado por el usuario.', type:'neutral'});
+            p.events.push({month: p.month, msg: 'Liquidación manual ejecutada.', type:'neutral'});
             saveState();
             renderSimulatorState(p);
-            Swal.fire({title: 'Liquidado', text: 'Fondos retornados a tu cuenta.', icon: 'success', background: '#0f172a', color: '#fff'});
+            Swal.fire({title: 'Ejecutado', text: 'Capital liberado.', icon: 'success', background: getSwalBg(), color: getSwalColor()});
         }
     });
 }
@@ -456,10 +490,10 @@ function liquidateProject() {
 // VALIDADOR LEAN STARTUP
 // ==========================================
 const validationChecklist = [
-    "He entrevistado a 5 clientes potenciales (Problem/Solution Fit).",
-    "Tengo definido el perfil demográfico de mi cliente ideal (Buyer Persona).",
-    "Conozco al menos 2 competidores y sé cómo me diferencio.",
-    "Calculé mis costos operativos y tengo un modelo de monetización claro."
+    "Hablé con 5 clientes (Entrevistas de Problema).",
+    "Definí a mi Buyer Persona (Arquetipo de Cliente).",
+    "Estudié a 2 competidores y mi ventaja competitiva.",
+    "Boceté un modelo de monetización (Estructura de costos)."
 ];
 
 function switchValProject(forceId) {
@@ -486,12 +520,13 @@ function renderValidatorState(p) {
     
     validationChecklist.forEach((text, i) => {
         const checked = p.validation[i] ? 'checked' : '';
+        const borderClass = p.validation[i] ? 'border-gray-900 dark:border-brand-primary' : 'border-gray-200 dark:border-slate-700';
+        const textClass = p.validation[i] ? 'text-gray-900 dark:text-brand-primary font-bold' : 'text-gray-600 dark:text-slate-400 group-hover:text-gray-900 dark:group-hover:text-white';
+        
         container.innerHTML += `
-            <label class="flex items-start gap-4 p-5 bg-[#111926] border ${p.validation[i] ? 'border-brand-primary/50' : 'border-slate-700'} rounded-xl cursor-pointer hover:bg-[#152033] transition-all group">
-                <div class="relative flex items-center justify-center mt-0.5">
-                    <input type="checkbox" onchange="toggleValidation(${i})" ${checked} class="custom-checkbox appearance-none w-6 h-6 border-2 border-slate-500 rounded bg-transparent checked:bg-brand-primary checked:border-brand-primary transition-colors cursor-pointer">
-                </div>
-                <span class="${p.validation[i] ? 'text-brand-primary font-medium' : 'text-slate-300 group-hover:text-white'} transition-colors">${text}</span>
+            <label class="flex items-center gap-4 p-4 bg-gray-50 dark:bg-slate-900 border ${borderClass} rounded-xl cursor-pointer hover:bg-white dark:hover:bg-slate-800 transition-all shadow-sm group">
+                <input type="checkbox" onchange="toggleValidation(${i})" ${checked} class="w-5 h-5 rounded text-gray-900 dark:text-brand-primary focus:ring-gray-900 dark:focus:ring-brand-primary accent-gray-900 dark:accent-brand-primary cursor-pointer">
+                <span class="${textClass} transition-colors text-sm">${text}</span>
             </label>
         `;
     });
@@ -501,14 +536,11 @@ function renderValidatorState(p) {
 
 function toggleValidation(index) {
     const p = appData.projects.find(x => x.id === appData.activeProjectId);
-    const wasChecked = p.validation[index];
+    p.validation[index] = !p.validation[index];
     
-    p.validation[index] = !wasChecked;
-    
-    // Otorgar o quitar XP
     if (p.validation[index]) {
         appData.xp += 20;
-        Swal.fire({ toast: true, position: 'top-end', showConfirmButton: false, timer: 2000, icon: 'success', title: '+20 XP', text: 'Hito de negocio validado.', background: '#0f172a', color: '#00ff88' });
+        Swal.fire({ toast: true, position: 'top-end', showConfirmButton: false, timer: 2000, icon: 'success', title: '+20 XP', text: 'Validación completada.', background: getSwalBg(), color: getSwalColor() });
     } else {
         appData.xp -= 20;
     }
@@ -522,16 +554,16 @@ function evaluateValidation(p) {
     const checkedCount = p.validation.filter(x => x).length;
     const score = (checkedCount / p.validation.length) * 100;
     
-    resultBox.className = 'mt-8 p-6 rounded-xl border text-center font-medium transition-all duration-500';
+    resultBox.className = 'mt-8 p-6 rounded-xl border text-center font-bold text-sm shadow-sm transition-all duration-300';
     
     if (score === 100) {
-        resultBox.innerHTML = '<span class="text-3xl block mb-2">🚀</span> Nivel de Viabilidad: EXCELENTE.<br>Has validado todos los pilares. Tienes luz verde para lanzar.';
-        resultBox.classList.add('bg-brand-primary/10', 'border-brand-primary', 'text-brand-primary');
+        resultBox.innerHTML = '<span class="text-3xl block mb-2">🚀</span> RIESGO MITIGADO. Tienes validación completa. ¡A construir!';
+        resultBox.classList.add('bg-green-50', 'dark:bg-green-500/10', 'border-green-200', 'dark:border-green-500', 'text-green-700', 'dark:text-green-400');
     } else if (score >= 50) {
-        resultBox.innerHTML = '<span class="text-3xl block mb-2">⚠️</span> Nivel de Viabilidad: MEDIO.<br>Vas por buen camino, pero te faltan validar piezas clave.';
-        resultBox.classList.add('bg-yellow-500/10', 'border-yellow-500', 'text-yellow-500');
+        resultBox.innerHTML = '<span class="text-3xl block mb-2">⚠️</span> RIESGO MODERADO. Falta validar información crucial en el mercado.';
+        resultBox.classList.add('bg-yellow-50', 'dark:bg-yellow-500/10', 'border-yellow-200', 'dark:border-yellow-500', 'text-yellow-700', 'dark:text-yellow-400');
     } else {
-        resultBox.innerHTML = '<span class="text-3xl block mb-2">🛑</span> Nivel de Viabilidad: RIESGO ALTO.<br>Tu idea está basada en supuestos no validados. Habla con clientes.';
-        resultBox.classList.add('bg-red-500/10', 'border-red-500', 'text-red-400');
+        resultBox.innerHTML = '<span class="text-3xl block mb-2">🛑</span> RIESGO EXTREMO. No lances tu producto hasta hablar con clientes reales.';
+        resultBox.classList.add('bg-red-50', 'dark:bg-red-500/10', 'border-red-200', 'dark:border-red-500', 'text-red-700', 'dark:text-red-400');
     }
 }
