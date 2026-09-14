@@ -1,201 +1,270 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" class="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SeedUp - Dashboard Emprendedor</title>
-    <!-- Evitar caché -->
+    <title>SeedUp - Aprende a Emprender</title>
+    <!-- Bust Cache -->
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <link rel="stylesheet" href="style.css?v=10">
+    
+    <!-- Custom Scrollbar -->
+    <link rel="stylesheet" href="style.css?v=20">
+    
+    <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    
+    <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- Tailwind CSS (CDN for prototyping) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            dark: '#05090f',      /* Fondo principal */
+                            card: '#0f172a',      /* Fondo de tarjetas */
+                            primary: '#00ff88',   /* Verde Neón */
+                            secondary: '#00d2ff', /* Cyan */
+                            danger: '#ef4444',
+                            warning: '#f59e0b',
+                        }
+                    },
+                    fontFamily: {
+                        orbitron: ['Orbitron', 'sans-serif'],
+                        inter: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
 </head>
-<body>
+<body class="bg-brand-dark text-slate-300 font-inter h-screen overflow-hidden antialiased">
 
-    <!-- PANTALLA DE LOGIN -->
-    <div id="login-view" class="auth-wrapper">
-        <div class="login-card">
-            <div class="logo">
-                <span class="logo-text">Seed<span class="logo-accent">Up</span></span>
-            </div>
-            <h2>Acceso a Plataforma</h2>
-            <p class="subtitle">Ingresa para gestionar tu capital simulado.</p>
+    <!-- ==== PANTALLA DE LOGIN ==== -->
+    <div id="login-view" class="fixed inset-0 z-50 flex items-center justify-center bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-[#0a1324] to-brand-dark transition-opacity duration-700">
+        <!-- Tarjeta estilo Glassmorphism con bordes sutiles -->
+        <div class="bg-[#0b111a]/90 backdrop-blur-xl border border-brand-primary/20 p-10 sm:p-12 rounded-3xl w-full max-w-[480px] shadow-[0_20px_50px_rgba(0,0,0,0.5),_0_0_30px_rgba(0,255,136,0.05)] transform transition-transform">
             
-            <form onsubmit="handleLogin(event)">
-                <div class="input-group">
-                    <input type="email" placeholder="Correo universitario (@unitec.edu)" required class="modern-input">
+            <div class="text-center mb-10">
+                <span class="font-orbitron text-[2.5rem] font-black tracking-tight text-white">
+                    Seed<span class="text-brand-primary drop-shadow-[0_0_20px_rgba(0,255,136,0.5)]">Up</span>
+                </span>
+            </div>
+            
+            <h2 class="font-orbitron text-2xl text-white mb-2">Iniciar Sesión</h2>
+            <p class="text-slate-400 mb-8 text-sm sm:text-base">Ingresa a tu cuenta para empezar a simular.</p>
+            
+            <form onsubmit="handleLogin(event)" class="space-y-6">
+                <div>
+                    <input type="email" placeholder="Correo universitario (@unitec.edu)" required 
+                        class="w-full bg-[#111926] border-2 border-slate-800/80 text-white px-5 py-4 rounded-xl outline-none focus:border-brand-primary focus:bg-[#152033] focus:shadow-[0_0_0_4px_rgba(0,255,136,0.1)] transition-all placeholder:text-slate-500">
                 </div>
-                <div class="input-group">
-                    <input type="password" placeholder="Contraseña" required class="modern-input">
+                <div>
+                    <input type="password" placeholder="Contraseña" required 
+                        class="w-full bg-[#111926] border-2 border-slate-800/80 text-white px-5 py-4 rounded-xl outline-none focus:border-brand-primary focus:bg-[#152033] focus:shadow-[0_0_0_4px_rgba(0,255,136,0.1)] transition-all placeholder:text-slate-500">
                 </div>
-                <button type="submit" class="btn-primary w-100" style="margin-top: 1rem; padding: 1.2rem; font-size: 1.1rem;">Entrar al Simulador</button>
+                <button type="submit" class="w-full mt-2 bg-gradient-to-r from-brand-secondary to-brand-primary text-black font-orbitron font-bold text-lg py-4 rounded-xl hover:-translate-y-1 hover:shadow-[0_10px_25px_rgba(0,255,136,0.3)] transition-all duration-300">
+                    Entrar al Simulador
+                </button>
             </form>
         </div>
     </div>
 
-    <!-- DASHBOARD LAYOUT -->
-    <div id="dashboard-layout" class="layout-wrapper" style="display: none;">
+    <!-- ==== DASHBOARD LAYOUT ==== -->
+    <div id="dashboard-layout" class="flex h-full opacity-0 pointer-events-none transition-opacity duration-700">
         
         <!-- SIDEBAR -->
-        <aside class="sidebar" id="sidebar">
-            <div class="sidebar-header">
-                <div class="logo">
-                    <span class="logo-text">Seed<span class="logo-accent">Up</span></span>
-                </div>
-                <button class="mobile-menu-close" onclick="toggleSidebar()">✕</button>
+        <aside id="sidebar" class="fixed md:static inset-y-0 left-0 z-40 w-[260px] bg-[#0c1322] border-r border-slate-800 flex flex-col transform -translate-x-full md:translate-x-0 transition-transform duration-300 shadow-2xl md:shadow-none">
+            <div class="h-20 flex items-center justify-between px-6 border-b border-slate-800/60">
+                <span class="font-orbitron text-2xl font-black text-white">
+                    Seed<span class="text-brand-primary drop-shadow-[0_0_15px_rgba(0,255,136,0.4)]">Up</span>
+                </span>
+                <button class="md:hidden text-slate-400 hover:text-white text-2xl" onclick="toggleSidebar()">✕</button>
             </div>
             
-            <nav class="sidebar-nav">
-                <a href="#" class="nav-item active" onclick="navigate('dashboard', this)">
-                    <span class="icon">📊</span> Panel de Control
+            <nav class="flex-1 px-4 py-6 space-y-2">
+                <a href="#" onclick="navigate('dashboard', this)" class="nav-item active flex items-center gap-4 px-4 py-3.5 rounded-xl text-slate-400 hover:bg-slate-800/40 hover:text-white transition-colors">
+                    <span class="text-xl">📊</span> <span class="font-medium text-[0.95rem]">Panel de Control</span>
                 </a>
-                <a href="#" class="nav-item" onclick="navigate('simulator', this)">
-                    <span class="icon">📈</span> Simulador Financiero
+                <a href="#" onclick="navigate('simulator', this)" class="nav-item flex items-center gap-4 px-4 py-3.5 rounded-xl text-slate-400 hover:bg-slate-800/40 hover:text-white transition-colors">
+                    <span class="text-xl">📈</span> <span class="font-medium text-[0.95rem]">Simulador Financiero</span>
                 </a>
-                <a href="#" class="nav-item" onclick="navigate('validator', this)">
-                    <span class="icon">✅</span> Validación de Ideas
+                <a href="#" onclick="navigate('validator', this)" class="nav-item flex items-center gap-4 px-4 py-3.5 rounded-xl text-slate-400 hover:bg-slate-800/40 hover:text-white transition-colors">
+                    <span class="text-xl">✅</span> <span class="font-medium text-[0.95rem]">Validación de Ideas</span>
                 </a>
             </nav>
             
-            <div class="sidebar-footer">
-                <a href="#" class="nav-item text-danger" onclick="logout()">
-                    <span class="icon">🚪</span> Cerrar Sesión
+            <div class="p-4 border-t border-slate-800/60">
+                <a href="#" onclick="logout()" class="flex items-center gap-4 px-4 py-3 rounded-xl text-red-400/80 hover:bg-red-500/10 hover:text-red-400 transition-colors">
+                    <span class="text-xl">🚪</span> <span class="font-medium text-[0.95rem]">Cerrar Sesión</span>
                 </a>
             </div>
         </aside>
 
         <!-- MAIN CONTENT AREA -->
-        <div class="main-content">
+        <div class="flex-1 flex flex-col min-w-0">
             
             <!-- TOPBAR -->
-            <header class="topbar">
-                <button class="mobile-menu-btn" onclick="toggleSidebar()">☰</button>
-                <div class="page-title" id="topbar-title">Panel de Control</div>
-                
-                <div class="topbar-right">
-                    <div class="balance-widget">
-                        <span class="balance-label">Capital Semilla</span>
-                        <span class="balance-amount" id="balance-display">S/ 10,000</span>
+            <header class="h-20 bg-[#0c1322]/80 backdrop-blur-md border-b border-slate-800/60 flex items-center justify-between px-4 sm:px-8 z-30 sticky top-0">
+                <div class="flex items-center gap-4">
+                    <button class="md:hidden text-slate-300 hover:text-white text-2xl" onclick="toggleSidebar()">☰</button>
+                    <h1 id="topbar-title" class="font-orbitron text-lg sm:text-xl font-bold text-white hidden sm:block tracking-wide">Panel de Control</h1>
+                </div>
+                <div class="flex items-center gap-4 sm:gap-6">
+                    <div class="text-right flex flex-col justify-center">
+                        <span class="text-[0.65rem] sm:text-xs font-bold text-brand-primary uppercase tracking-widest">Capital Semilla</span>
+                        <span id="balance-display" class="font-orbitron text-lg sm:text-xl font-bold text-white">S/ 10,000</span>
                     </div>
-                    <div class="avatar">U</div>
+                    <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-brand-primary to-brand-secondary flex items-center justify-center text-black font-bold font-orbitron shadow-[0_0_15px_rgba(0,255,136,0.3)] border border-brand-primary/50">
+                        U
+                    </div>
                 </div>
             </header>
 
-            <!-- VIEWS CONTAINER -->
-            <main class="content-scroll">
+            <!-- VIEWS SCROLL AREA -->
+            <main class="flex-1 overflow-y-auto p-4 sm:p-8 custom-scrollbar relative">
                 
-                <!-- VISTA: PANEL (DASHBOARD) -->
-                <section id="dashboard" class="view active">
-                    <div class="grid-layout">
-                        <!-- Widget 1: Resumen -->
-                        <div class="widget summary-widget">
-                            <h3>Resumen Financiero</h3>
-                            <div class="big-number" id="dash-balance">S/ 10,000</div>
-                            <p class="trend positive">↑ 0% desde el inicio</p>
+                <!-- ====== VISTA: DASHBOARD ====== -->
+                <section id="dashboard" class="view active space-y-6 sm:space-y-8 animate-[fadeUp_0.5s_ease_forwards]">
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        
+                        <!-- WIDGET: Resumen -->
+                        <div class="bg-brand-card border border-slate-800 p-6 sm:p-8 rounded-2xl shadow-xl hover:border-slate-700 transition-colors">
+                            <h3 class="font-orbitron text-white text-lg mb-6 flex items-center gap-2"><span class="w-2 h-6 bg-brand-secondary rounded-full"></span> Resumen Financiero</h3>
+                            <div id="dash-balance" class="font-orbitron text-4xl sm:text-5xl text-white mb-2">S/ 10,000</div>
+                            <p class="text-brand-primary font-medium flex items-center gap-1.5 text-sm">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg>
+                                0% de retorno
+                            </p>
                             
-                            <div class="stats-row mt-3">
-                                <div class="stat">
-                                    <span class="label">Inversiones Activas</span>
-                                    <span class="value">0</span>
+                            <div class="grid grid-cols-2 gap-4 mt-8 pt-6 border-t border-slate-800/80">
+                                <div>
+                                    <div class="text-slate-500 text-xs font-semibold uppercase tracking-wider mb-1">Inversiones Activas</div>
+                                    <div class="font-orbitron text-2xl text-white">0</div>
                                 </div>
-                                <div class="stat">
-                                    <span class="label">Retorno Total</span>
-                                    <span class="value" id="dash-profit">S/ 0</span>
+                                <div>
+                                    <div class="text-slate-500 text-xs font-semibold uppercase tracking-wider mb-1">Beneficio / Pérdida</div>
+                                    <div id="dash-profit" class="font-orbitron text-2xl text-slate-400">S/ 0</div>
                                 </div>
                             </div>
                         </div>
-
-                        <!-- Widget 2: Nivel Educativo -->
-                        <div class="widget progress-widget">
-                            <h3>Tu Progreso Educativo</h3>
-                            <div class="level-info">
-                                <span class="level">Nivel 2</span>
-                                <span class="title">Explorador de Ideas</span>
-                            </div>
-                            <div class="progress-bar-container mt-2">
-                                <div class="progress-fill" style="width: 35%;"></div>
-                            </div>
-                            <p class="progress-detail">Faltan 650 XP para el Nivel 3</p>
+                        
+                        <!-- WIDGET: Progreso Educativo -->
+                        <div class="bg-brand-card border border-slate-800 p-6 sm:p-8 rounded-2xl shadow-xl hover:border-slate-700 transition-colors">
+                            <h3 class="font-orbitron text-white text-lg mb-6 flex items-center gap-2"><span class="w-2 h-6 bg-brand-primary rounded-full"></span> Progreso Educativo</h3>
                             
-                            <h4 class="mt-3">Logros Recientes</h4>
-                            <ul class="achievement-list">
-                                <li><span class="check">✔</span> Primer Presupuesto</li>
-                                <li><span class="pending">⏳</span> Realizar primera inversión</li>
+                            <div class="flex justify-between items-end mb-3">
+                                <div class="flex flex-col">
+                                    <span class="text-brand-secondary font-bold text-sm tracking-widest uppercase mb-1">Nivel 2</span>
+                                    <span class="text-white font-medium">Explorador de Ideas</span>
+                                </div>
+                                <span class="text-brand-primary font-bold">35%</span>
+                            </div>
+                            
+                            <div class="h-2.5 w-full bg-slate-800 rounded-full overflow-hidden mb-2">
+                                <div class="h-full bg-gradient-to-r from-brand-secondary to-brand-primary w-[35%] shadow-[0_0_10px_rgba(0,255,136,0.6)]"></div>
+                            </div>
+                            <p class="text-xs text-right text-slate-500 mb-8">650 XP restantes para subir de nivel</p>
+                            
+                            <h4 class="font-medium text-slate-400 text-sm mb-3 uppercase tracking-wider">Logros Recientes</h4>
+                            <ul class="space-y-3">
+                                <li class="flex items-center gap-3 text-sm bg-brand-dark p-3.5 rounded-xl border border-slate-800">
+                                    <div class="w-6 h-6 rounded-full bg-brand-primary/20 flex items-center justify-center text-brand-primary text-xs">✔</div>
+                                    <span class="text-slate-300">Primer Presupuesto Creado</span>
+                                </li>
+                                <li class="flex items-center gap-3 text-sm bg-brand-dark p-3.5 rounded-xl border border-slate-800">
+                                    <div class="w-6 h-6 rounded-full bg-yellow-500/20 flex items-center justify-center text-yellow-500 text-xs">⏳</div>
+                                    <span class="text-slate-400">Realizar tu primera inversión</span>
+                                </li>
                             </ul>
                         </div>
+                        
                     </div>
                 </section>
 
-                <!-- VISTA: SIMULADOR -->
-                <section id="simulator" class="view hidden">
-                    <div class="widget">
-                        <h2>Simulador de Inversión Avanzado</h2>
-                        <p class="text-muted">Proyecta cómo se comportaría tu capital en diferentes escenarios empresariales a lo largo de 12 meses.</p>
+                <!-- ====== VISTA: SIMULADOR ====== -->
+                <section id="simulator" class="view hidden space-y-6 animate-[fadeUp_0.5s_ease_forwards]">
+                    <div class="bg-brand-card border border-slate-800 p-6 sm:p-8 rounded-2xl shadow-xl">
+                        <h2 class="font-orbitron text-2xl text-white mb-2">Simulador Financiero Avanzado</h2>
+                        <p class="text-slate-400 mb-8 text-sm sm:text-base">Proyecta la volatilidad y el rendimiento de tu capital semilla a 12 meses dependiendo del modelo de negocio que elijas.</p>
                         
-                        <div class="simulator-controls grid-layout mt-3">
-                            <div class="control-panel">
-                                <div class="input-group">
-                                    <label>Tipo de Proyecto</label>
-                                    <select id="sim-type">
-                                        <option value="high">Startup Tech / App (Riesgo Alto)</option>
-                                        <option value="medium">E-commerce / Tienda Online (Riesgo Moderado)</option>
-                                        <option value="low">Negocio Tradicional / Franquicia (Riesgo Bajo)</option>
+                        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10">
+                            <!-- Controles -->
+                            <div class="lg:col-span-4 space-y-6">
+                                <div>
+                                    <label class="block text-sm font-semibold text-slate-400 uppercase tracking-wider mb-2">Modelo de Negocio (Riesgo)</label>
+                                    <select id="sim-type" class="w-full bg-[#111926] border border-slate-700 text-white px-4 py-3.5 rounded-xl outline-none focus:border-brand-primary focus:ring-1 focus:ring-brand-primary transition-all">
+                                        <option value="high">🚀 Startup SaaS Tech (Riesgo Alto)</option>
+                                        <option value="medium">🛒 E-commerce (Riesgo Medio)</option>
+                                        <option value="low">🏪 Franquicia Local (Riesgo Bajo)</option>
                                     </select>
                                 </div>
-                                
-                                <div class="input-group">
-                                    <label>Monto a Invertir (S/)</label>
-                                    <input type="number" id="sim-amount" value="1000" min="100" step="100">
+                                <div>
+                                    <label class="block text-sm font-semibold text-slate-400 uppercase tracking-wider mb-2">Monto a Invertir (S/)</label>
+                                    <input type="number" id="sim-amount" value="1000" min="100" step="100" class="w-full bg-[#111926] border border-slate-700 text-white px-4 py-3.5 rounded-xl outline-none focus:border-brand-primary focus:ring-1 focus:ring-brand-primary transition-all">
                                 </div>
+                                <button onclick="runSimulation()" class="w-full bg-gradient-to-r from-brand-secondary to-brand-primary text-black font-orbitron font-bold text-lg py-4 rounded-xl hover:-translate-y-1 hover:shadow-[0_10px_20px_rgba(0,255,136,0.3)] transition-all">
+                                    Simular 1 Año
+                                </button>
                                 
-                                <button class="btn-primary w-100" onclick="runSimulation()">Ejecutar Simulación (1 Año)</button>
-                                
-                                <div id="sim-feedback" class="mt-2" style="display:none; padding: 1rem; border-radius: 8px;"></div>
+                                <div id="sim-feedback" class="hidden p-4 rounded-xl text-sm font-medium border"></div>
                             </div>
                             
-                            <!-- Gráfico Chart.js -->
-                            <div class="chart-container" style="position: relative; height:300px; width:100%;">
+                            <!-- Gráfico -->
+                            <div class="lg:col-span-8 bg-[#0c1322] rounded-2xl border border-slate-800/80 p-4 sm:p-6 min-h-[350px] relative shadow-inner">
                                 <canvas id="investmentChart"></canvas>
                             </div>
                         </div>
                     </div>
                 </section>
 
-                <!-- VISTA: VALIDADOR -->
-                <section id="validator" class="view hidden">
-                    <div class="widget max-w-800">
-                        <h2>Ruta de Validación de Negocio</h2>
-                        <p class="text-muted mb-3">Marca los hitos que ya has completado. SeedUp calculará el nivel de viabilidad de tu idea basándose en metodologías ágiles (Lean Startup).</p>
+                <!-- ====== VISTA: VALIDADOR ====== -->
+                <section id="validator" class="view hidden animate-[fadeUp_0.5s_ease_forwards]">
+                    <div class="bg-brand-card border border-slate-800 p-6 sm:p-10 rounded-2xl shadow-xl max-w-4xl mx-auto">
+                        <h2 class="font-orbitron text-2xl text-white mb-2">Validación Lean Startup</h2>
+                        <p class="text-slate-400 mb-8 text-sm sm:text-base">No inviertas dinero a ciegas. Marca los hitos que ya has completado para que el sistema calcule el nivel de viabilidad de tu idea.</p>
                         
-                        <form id="validation-form" onsubmit="validateIdea(event)">
-                            <div class="checklist">
-                                <label class="check-item">
-                                    <input type="checkbox">
-                                    <span class="check-text">Problema validado: He hablado con 5 clientes potenciales que tienen este dolor.</span>
-                                </label>
-                                <label class="check-item">
-                                    <input type="checkbox">
-                                    <span class="check-text">Mercado: Mi público objetivo es claro y sé dónde encontrarlos.</span>
-                                </label>
-                                <label class="check-item">
-                                    <input type="checkbox">
-                                    <span class="check-text">Competencia: Conozco al menos 2 competidores y sé cómo me diferencio.</span>
-                                </label>
-                                <label class="check-item">
-                                    <input type="checkbox">
-                                    <span class="check-text">Modelo de Ingresos: Tengo claro cómo voy a cobrar y cuánto costará mi MVP.</span>
-                                </label>
-                                <label class="check-item">
-                                    <input type="checkbox">
-                                    <span class="check-text">Viabilidad Técnica: Cuento con los recursos/equipo para crear la primera versión.</span>
-                                </label>
-                            </div>
-                            <button type="submit" class="btn-primary mt-3">Generar Diagnóstico</button>
+                        <form onsubmit="validateIdea(event)" class="space-y-4">
+                            <label class="flex items-start gap-4 p-5 bg-[#111926] border border-slate-700 rounded-xl cursor-pointer hover:border-brand-primary/50 hover:bg-[#152033] transition-all group">
+                                <div class="relative flex items-center justify-center mt-0.5">
+                                    <input type="checkbox" class="custom-checkbox appearance-none w-6 h-6 border-2 border-slate-500 rounded bg-transparent checked:bg-brand-primary checked:border-brand-primary transition-colors cursor-pointer">
+                                </div>
+                                <span class="text-slate-300 group-hover:text-white transition-colors">He entrevistado a 5 clientes potenciales (Problem/Solution Fit).</span>
+                            </label>
+
+                            <label class="flex items-start gap-4 p-5 bg-[#111926] border border-slate-700 rounded-xl cursor-pointer hover:border-brand-primary/50 hover:bg-[#152033] transition-all group">
+                                <div class="relative flex items-center justify-center mt-0.5">
+                                    <input type="checkbox" class="custom-checkbox appearance-none w-6 h-6 border-2 border-slate-500 rounded bg-transparent checked:bg-brand-primary checked:border-brand-primary transition-colors cursor-pointer">
+                                </div>
+                                <span class="text-slate-300 group-hover:text-white transition-colors">Tengo definido el perfil demográfico de mi cliente ideal (Buyer Persona).</span>
+                            </label>
+
+                            <label class="flex items-start gap-4 p-5 bg-[#111926] border border-slate-700 rounded-xl cursor-pointer hover:border-brand-primary/50 hover:bg-[#152033] transition-all group">
+                                <div class="relative flex items-center justify-center mt-0.5">
+                                    <input type="checkbox" class="custom-checkbox appearance-none w-6 h-6 border-2 border-slate-500 rounded bg-transparent checked:bg-brand-primary checked:border-brand-primary transition-colors cursor-pointer">
+                                </div>
+                                <span class="text-slate-300 group-hover:text-white transition-colors">Conozco al menos 2 competidores y sé cómo me diferencio.</span>
+                            </label>
+
+                            <label class="flex items-start gap-4 p-5 bg-[#111926] border border-slate-700 rounded-xl cursor-pointer hover:border-brand-primary/50 hover:bg-[#152033] transition-all group">
+                                <div class="relative flex items-center justify-center mt-0.5">
+                                    <input type="checkbox" class="custom-checkbox appearance-none w-6 h-6 border-2 border-slate-500 rounded bg-transparent checked:bg-brand-primary checked:border-brand-primary transition-colors cursor-pointer">
+                                </div>
+                                <span class="text-slate-300 group-hover:text-white transition-colors">Calculé mis costos operativos y tengo un modelo de monetización claro.</span>
+                            </label>
+                            
+                            <button type="submit" class="w-full bg-gradient-to-r from-brand-secondary to-brand-primary text-black font-orbitron font-bold text-lg py-4 rounded-xl hover:-translate-y-1 hover:shadow-[0_10px_20px_rgba(0,255,136,0.3)] transition-all mt-8">
+                                Generar Diagnóstico de Viabilidad
+                            </button>
                         </form>
                         
-                        <div id="val-result" class="diagnosis-box mt-3 hidden"></div>
+                        <div id="val-result" class="hidden mt-6 p-6 rounded-xl border font-medium"></div>
                     </div>
                 </section>
                 
@@ -203,6 +272,7 @@
         </div>
     </div>
 
-    <script src="app.js?v=10"></script>
+    <!-- Cargar JS con cache-busting -->
+    <script src="app.js?v=20"></script>
 </body>
 </html>

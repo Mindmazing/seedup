@@ -5,17 +5,46 @@ let investmentChart = null; // Instancia de Chart.js
 // ==== AUTENTICACIÓN ====
 function handleLogin(event) {
     event.preventDefault();
-    document.getElementById('login-view').classList.add('hidden');
-    document.getElementById('dashboard-layout').style.display = 'flex';
-    updateBalanceUI();
+    
+    const loginView = document.getElementById('login-view');
+    const dashboardLayout = document.getElementById('dashboard-layout');
+    
+    // Transición suave
+    loginView.classList.add('opacity-0');
+    
+    setTimeout(() => {
+        loginView.classList.add('hidden');
+        loginView.classList.remove('flex');
+        
+        dashboardLayout.classList.remove('hidden');
+        // Pequeño delay para trigger opacity transition
+        setTimeout(() => {
+            dashboardLayout.classList.remove('opacity-0', 'pointer-events-none');
+        }, 50);
+        
+        updateBalanceUI();
+    }, 500); // 500ms duration matching tailwind transition-opacity duration-500
 }
 
 function logout() {
-    document.getElementById('dashboard-layout').style.display = 'none';
-    document.getElementById('login-view').classList.remove('hidden');
+    const loginView = document.getElementById('login-view');
+    const dashboardLayout = document.getElementById('dashboard-layout');
     
-    // Resetear al login
-    navigate('dashboard', document.querySelector('.sidebar-nav a:first-child'));
+    dashboardLayout.classList.add('opacity-0', 'pointer-events-none');
+    
+    setTimeout(() => {
+        dashboardLayout.classList.add('hidden');
+        
+        loginView.classList.remove('hidden');
+        loginView.classList.add('flex');
+        
+        setTimeout(() => {
+            loginView.classList.remove('opacity-0');
+        }, 50);
+        
+        // Resetear vista interna al panel principal
+        navigate('dashboard', document.querySelector('.nav-item'));
+    }, 500);
 }
 
 // ==== NAVEGACIÓN Y UI ====
@@ -27,20 +56,28 @@ function navigate(viewId, element) {
     });
     const target = document.getElementById(viewId);
     target.classList.remove('hidden');
-    // Pequeño delay para trigger de animación CSS
-    setTimeout(() => target.classList.add('active'), 10);
+    
+    // Hack para reiniciar animación CSS
+    target.style.animation = 'none';
+    target.offsetHeight; /* trigger reflow */
+    target.style.animation = null; 
+    
+    target.classList.add('active');
     
     // Actualizar menú activo
     if(element) {
         document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
         element.classList.add('active');
-        document.getElementById('topbar-title').innerText = element.innerText.replace(/[^\w\s\á\é\í\ó\ú\Á\É\Í\Ó\Ú]/g, '').trim();
+        
+        // Extraer texto limpio para el título
+        const titleText = element.querySelector('.font-medium').innerText;
+        document.getElementById('topbar-title').innerText = titleText;
     }
     
     // Cerrar sidebar en mobile si está abierta
     const sidebar = document.getElementById('sidebar');
-    if(sidebar.classList.contains('open')) {
-        sidebar.classList.remove('open');
+    if(!sidebar.classList.contains('-translate-x-full')) {
+        toggleSidebar();
     }
     
     // Inicializar chart si entramos a simulador y no existe
@@ -50,12 +87,19 @@ function navigate(viewId, element) {
 }
 
 function toggleSidebar() {
-    document.getElementById('sidebar').classList.toggle('open');
+    const sidebar = document.getElementById('sidebar');
+    if (sidebar.classList.contains('-translate-x-full')) {
+        sidebar.classList.remove('-translate-x-full');
+    } else {
+        sidebar.classList.add('-translate-x-full');
+    }
 }
 
 function updateBalanceUI() {
     const formatted = `S/ ${balance.toLocaleString('es-PE', {minimumFractionDigits: 0, maximumFractionDigits: 0})}`;
-    document.getElementById('balance-display').innerText = formatted;
+    
+    const displayTop = document.getElementById('balance-display');
+    if(displayTop) displayTop.innerText = formatted;
     
     const dashBal = document.getElementById('dash-balance');
     if(dashBal) dashBal.innerText = formatted;
@@ -64,7 +108,7 @@ function updateBalanceUI() {
     if(profitBal) {
         const profit = balance - 10000;
         profitBal.innerText = `S/ ${profit.toLocaleString('es-PE', {minimumFractionDigits: 0, maximumFractionDigits: 0})}`;
-        profitBal.style.color = profit >= 0 ? 'var(--brand-primary)' : 'var(--brand-danger)';
+        profitBal.className = profit >= 0 ? 'font-orbitron text-2xl text-brand-primary' : 'font-orbitron text-2xl text-red-400';
     }
 }
 
@@ -72,7 +116,6 @@ function updateBalanceUI() {
 function initChart() {
     const ctx = document.getElementById('investmentChart').getContext('2d');
     
-    // Datos iniciales vacíos o demo
     const data = {
         labels: ['Mes 0', 'Mes 1', 'Mes 2', 'Mes 3', 'Mes 4', 'Mes 5', 'Mes 6', 'Mes 7', 'Mes 8', 'Mes 9', 'Mes 10', 'Mes 11', 'Mes 12'],
         datasets: [{
@@ -93,17 +136,17 @@ function initChart() {
             responsive: true,
             maintainAspectRatio: false,
             plugins: {
-                legend: { labels: { color: '#f8fafc' } }
+                legend: { labels: { color: '#cbd5e1', font: { family: 'Inter' } } }
             },
             scales: {
                 y: {
-                    beginAtZero: false,
-                    grid: { color: '#1e293b' },
-                    ticks: { color: '#94a3b8' }
+                    beginAtZero: true,
+                    grid: { color: 'rgba(30, 41, 59, 0.5)' },
+                    ticks: { color: '#94a3b8', font: { family: 'Inter' } }
                 },
                 x: {
-                    grid: { color: '#1e293b' },
-                    ticks: { color: '#94a3b8' }
+                    grid: { color: 'rgba(30, 41, 59, 0.5)' },
+                    ticks: { color: '#94a3b8', font: { family: 'Inter' } }
                 }
             }
         }
@@ -116,74 +159,65 @@ function runSimulation() {
     const feedbackBox = document.getElementById('sim-feedback');
     
     if (isNaN(amount) || amount <= 0) {
-        showFeedback(feedbackBox, 'Por favor, ingresa un monto válido.', 'var(--brand-warning)');
+        showFeedback(feedbackBox, 'Por favor, ingresa un monto válido.', 'border-yellow-500/50 bg-yellow-500/10 text-yellow-500');
         return;
     }
     
     if (amount > balance) {
-        showFeedback(feedbackBox, 'Capital insuficiente para esta simulación.', 'var(--brand-danger)');
+        showFeedback(feedbackBox, 'Capital insuficiente para esta simulación.', 'border-red-500/50 bg-red-500/10 text-red-400');
         return;
     }
     
-    // Parámetros por riesgo
     let volatility = 0;
-    let drift = 0; // Tendencia general
+    let drift = 0;
     
     if (type === 'high') {
-        volatility = 0.4;  // Alta variación mes a mes
-        drift = 0.05;      // Ligera tendencia a subir mucho o caer en picada
+        volatility = 0.4;
+        drift = 0.05;
     } else if (type === 'medium') {
         volatility = 0.15;
         drift = 0.02;
     } else {
-        volatility = 0.05; // Muy estable
-        drift = 0.008;     // Crecimiento lento pero seguro
+        volatility = 0.05;
+        drift = 0.008;
     }
     
-    // Generar camino aleatorio (Random Walk con drift)
     let currentVal = amount;
     const dataPoints = [currentVal];
     
     for (let i = 1; i <= 12; i++) {
-        // Shock aleatorio normalizado rudimentario
         const shock = (Math.random() + Math.random() + Math.random() - 1.5) * 2; 
         const monthlyChange = drift + (shock * volatility);
-        
         currentVal = currentVal * (1 + monthlyChange);
-        
-        // Un negocio puede quebrar (llegar a 0) pero no tener valor negativo aquí
         if (currentVal < 0) currentVal = 0;
-        
         dataPoints.push(currentVal);
     }
     
     const finalAmount = dataPoints[12];
     const profit = finalAmount - amount;
     
-    // Actualizar Gráfico
     investmentChart.data.datasets[0].data = dataPoints;
-    investmentChart.data.datasets[0].borderColor = profit >= 0 ? '#00ff88' : '#ff4757';
-    investmentChart.data.datasets[0].backgroundColor = profit >= 0 ? 'rgba(0, 255, 136, 0.1)' : 'rgba(255, 71, 87, 0.1)';
+    investmentChart.data.datasets[0].borderColor = profit >= 0 ? '#00ff88' : '#ef4444';
+    investmentChart.data.datasets[0].backgroundColor = profit >= 0 ? 'rgba(0, 255, 136, 0.15)' : 'rgba(239, 68, 68, 0.15)';
     investmentChart.update();
     
-    // Descontar inversión inicial y sumar el valor final al balance real
     balance = balance - amount + finalAmount;
     updateBalanceUI();
     
-    // Mostrar feedback
     if (profit >= 0) {
-        showFeedback(feedbackBox, `¡Éxito! En 12 meses, tu inversión de S/ ${amount} se convirtió en S/ ${finalAmount.toFixed(0)} (+S/ ${profit.toFixed(0)}).`, 'var(--brand-primary)');
+        showFeedback(feedbackBox, `¡Éxito! En 12 meses, tu inversión de S/ ${amount} se convirtió en S/ ${finalAmount.toFixed(0)} (+S/ ${profit.toFixed(0)}).`, 'border-[#00ff88]/50 bg-[#00ff88]/10 text-[#00ff88]');
     } else {
-        showFeedback(feedbackBox, `Fracaso. En 12 meses perdiste S/ ${Math.abs(profit).toFixed(0)}. Valor final: S/ ${finalAmount.toFixed(0)}.`, 'var(--brand-danger)');
+        showFeedback(feedbackBox, `Fracaso. En 12 meses perdiste S/ ${Math.abs(profit).toFixed(0)}. Valor final: S/ ${finalAmount.toFixed(0)}.`, 'border-red-500/50 bg-red-500/10 text-red-400');
     }
 }
 
-function showFeedback(element, message, color) {
-    element.style.display = 'block';
+function showFeedback(element, message, tailwindClasses) {
+    element.classList.remove('hidden', 'border-yellow-500/50', 'bg-yellow-500/10', 'text-yellow-500', 'border-red-500/50', 'bg-red-500/10', 'text-red-400', 'border-[#00ff88]/50', 'bg-[#00ff88]/10', 'text-[#00ff88]');
+    
+    const classes = tailwindClasses.split(' ');
+    element.classList.add(...classes);
     element.innerText = message;
-    element.style.border = `1px solid ${color}`;
-    element.style.color = color;
-    element.style.backgroundColor = color.replace(')', ', 0.1)').replace('rgb', 'rgba').replace('var(--brand-primary)', 'rgba(0,255,136,0.1)').replace('var(--brand-danger)', 'rgba(255,71,87,0.1)').replace('var(--brand-warning)', 'rgba(255,165,2,0.1)');
+    element.style.display = 'block';
 }
 
 // ==== VALIDADOR ====
@@ -197,16 +231,16 @@ function validateIdea(event) {
     checkboxes.forEach(cb => { if (cb.checked) checkedCount++; });
     const score = (checkedCount / checkboxes.length) * 100;
     
-    resultBox.classList.remove('hidden', 'diagnosis-success', 'diagnosis-warning', 'diagnosis-danger');
+    resultBox.classList.remove('hidden', 'bg-[#00ff88]/10', 'border-[#00ff88]', 'text-[#00ff88]', 'bg-yellow-500/10', 'border-yellow-500', 'text-yellow-500', 'bg-red-500/10', 'border-red-500', 'text-red-400');
     
     if (score === 100) {
         resultBox.innerText = '🔥 Nivel de Viabilidad: EXCELENTE. Has validado todos los pilares del Lean Startup. Tienes luz verde para desarrollar el MVP.';
-        resultBox.classList.add('diagnosis-success');
+        resultBox.classList.add('bg-[#00ff88]/10', 'border-[#00ff88]', 'text-[#00ff88]');
     } else if (score >= 60) {
         resultBox.innerText = '⚠️ Nivel de Viabilidad: MEDIO. Vas por buen camino, pero te faltan validar piezas clave. Te recomendamos investigar más tu modelo de ingresos y competencia.';
-        resultBox.classList.add('diagnosis-warning');
+        resultBox.classList.add('bg-yellow-500/10', 'border-yellow-500', 'text-yellow-500');
     } else {
         resultBox.innerText = '🛑 Nivel de Viabilidad: RIESGO ALTO. Tu idea está basada en supuestos no validados. Habla con clientes potenciales antes de gastar 1 centavo.';
-        resultBox.classList.add('diagnosis-danger');
+        resultBox.classList.add('bg-red-500/10', 'border-red-500', 'text-red-400');
     }
 }
