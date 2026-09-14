@@ -291,7 +291,57 @@ button:hover {
 .danger-msg { background: rgba(255, 85, 85, 0.1); color: #ff5555; border: 1px solid #ff5555; }
 .warning-msg { background: rgba(255, 170, 0, 0.1); color: #ffaa00; border: 1px solid #ffaa00; }
 
+/* Formulario de Login */
+.login-container {
+    max-width: 450px;
+    margin: 5rem auto;
+    text-align: center;
+}
+.login-input {
+    width: 100%;
+    padding: 1.2rem;
+    border-radius: 10px;
+    border: 2px solid var(--border-color);
+    background: var(--bg-dark);
+    color: var(--text-main);
+    font-family: var(--font-body);
+    font-size: 1rem;
+    outline: none;
+    transition: all 0.3s;
+}
+.login-input:focus {
+    border-color: var(--brand-cyan);
+    box-shadow: 0 0 15px rgba(0, 210, 255, 0.2);
+}
+
 @media (max-width: 768px) {
+    .navbar { 
+        flex-direction: column; 
+        gap: 1.5rem; 
+        padding: 1.5rem;
+    }
+    .nav-links {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 1rem;
+    }
+    .nav-links button { margin: 0; }
+    
     .dashboard-grid { grid-template-columns: 1fr; }
     h1 { font-size: 2rem; }
+    #balance-display { font-size: 3rem; }
+    
+    main { padding: 0 1rem; margin-top: 1.5rem; }
+    
+    .investment-cards { grid-template-columns: 1fr; }
+    
+    .form-group label {
+        font-size: 1rem;
+        padding: 1rem;
+    }
+    
+    .login-container {
+        margin: 2rem auto;
+    }
 }

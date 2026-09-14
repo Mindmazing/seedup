@@ -4,6 +4,25 @@ let balance = 10000;
 // Utilidades DOM
 const balanceDisplay = document.getElementById('balance-display');
 
+// Funciones de Autenticación (Prototipo)
+function handleLogin(event) {
+    event.preventDefault();
+    
+    // Mostramos la barra de navegación que estaba oculta
+    document.getElementById('main-nav').style.display = 'flex';
+    
+    // Navegamos al panel principal
+    navigate('dashboard');
+}
+
+function logout() {
+    // Ocultar barra de navegación
+    document.getElementById('main-nav').style.display = 'none';
+    
+    // Navegar al login
+    navigate('login');
+}
+
 // Navegación
 function navigate(viewId) {
     document.querySelectorAll('.view').forEach(view => {
