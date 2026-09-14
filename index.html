@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SeedUp - Aprende a Emprender</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- Fuentes aproximadas al branding: Orbitron para títulos (vanguardista/tech) e Inter para textos legibles -->
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="logo">
+            <!-- Representación en texto del logo para la demo -->
+            <span class="logo-text">Seed<span class="logo-accent">Up</span></span>
+            <svg class="logo-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 22v-7l-3-3m3 3l3-3m-6-6c0-2.5 2-5 5-5s5 2.5 5 5c0 2-1 3.5-2.5 4.5"/>
+                <path d="M18 7l3-3m0 0h-3m3 0v3" stroke="#00ff88"/>
+            </svg>
+        </div>
+        <div class="nav-links">
+            <button onclick="navigate('dashboard')">Panel</button>
+            <button onclick="navigate('simulator')">Simulador</button>
+            <button onclick="navigate('validator')">Validación</button>
+        </div>
+    </nav>
+
+    <main id="app-content">
+        <!-- VISTA: DASHBOARD -->
+        <section id="dashboard" class="view active">
+            <div class="header-section">
+                <h1>Tu Camino Emprendedor</h1>
+                <p>Aprende, simula y valida sin arriesgar tu dinero real.</p>
+            </div>
+            
+            <div class="dashboard-grid">
+                <div class="balance-card">
+                    <h2>Capital Semilla Virtual</h2>
+                    <p id="balance-display">S/ 10,000</p>
+                    <div class="tag">Simulación</div>
+                </div>
+                
+                <div class="progress-section card">
+                    <h3>Progreso de Educación</h3>
+                    <div class="progress-bar">
+                        <div class="fill" style="width: 35%;"></div>
+                    </div>
+                    <p class="progress-text">Nivel 2: Explorador de Ideas (35%)</p>
+                    <ul class="achievements">
+                        <li>✅ Registro Completo</li>
+                        <li>✅ Primer Presupuesto</li>
+                        <li>⏳ Primera Inversión (Pendiente)</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- VISTA: SIMULADOR -->
+        <section id="simulator" class="view hidden">
+            <div class="header-section">
+                <h1>Simulador de Micro-Inversiones</h1>
+                <p>Experimenta con distintos niveles de riesgo. Aprender a perder es parte de emprender.</p>
+            </div>
+            
+            <div class="investment-cards">
+                <div class="card risk-high">
+                    <div class="card-header">
+                        <h3>Startup Tecnológica (SaaS)</h3>
+                        <span class="badge high">Alto Riesgo</span>
+                    </div>
+                    <p>Desarrollo de una app con IA. Altas probabilidades de fallo en validación, pero si despega, los retornos son masivos.</p>
+                    <button onclick="invest(1000, 'high')">Invertir S/ 1000</button>
+                </div>
+
+                <div class="card risk-medium">
+                    <div class="card-header">
+                        <h3>Venta de Ropa (E-commerce)</h3>
+                        <span class="badge medium">Riesgo Moderado</span>
+                    </div>
+                    <p>Compra de inventario y publicidad en redes. Competencia alta pero con demanda constante.</p>
+                    <button onclick="invest(1000, 'medium')">Invertir S/ 1000</button>
+                </div>
+
+                <div class="card risk-low">
+                    <div class="card-header">
+                        <h3>Fondo Mutuo Conservador</h3>
+                        <span class="badge low">Bajo Riesgo</span>
+                    </div>
+                    <p>Inversión en renta fija tradicional. Crece lento, pero tu dinero está casi asegurado.</p>
+                    <button onclick="invest(1000, 'low')">Invertir S/ 1000</button>
+                </div>
+            </div>
+            <div id="sim-result"></div>
+        </section>
+
+        <!-- VISTA: VALIDADOR -->
+        <section id="validator" class="view hidden">
+            <div class="header-section">
+                <h1>Asistente de Validación</h1>
+                <p>No lances a ciegas. Completa la ruta de negocio para obtener tu puntaje de viabilidad.</p>
+            </div>
+            
+            <form id="validation-form" onsubmit="validateIdea(event)">
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" required> 
+                        <span>¿Tienes identificado un problema claro y doloroso que la gente necesita resolver?</span>
+                    </label>
+                </div>
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" required> 
+                        <span>¿Has entrevistado a por lo menos 5 clientes potenciales sin venderles tu idea de inmediato?</span>
+                    </label>
+                </div>
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox"> 
+                        <span>¿Tienes identificado a tu competencia (incluso si son soluciones indirectas)?</span>
+                    </label>
+                </div>
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox"> 
+                        <span>¿Conoces cuánto te cuesta adquirir un cliente (CAC) y cómo vas a monetizar?</span>
+                    </label>
+                </div>
+                <button type="submit" class="btn-large">Calcular Viabilidad de mi Idea</button>
+            </form>
+            <div id="val-result"></div>
+        </section>
+    </main>
+
+    <script src="app.js"></script>
+</body>
+</html>
