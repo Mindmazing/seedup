@@ -85,8 +85,6 @@ function logout() {
 function updateGlobalUI() {
     const fmt = (num) => `$${Math.floor(num).toLocaleString('en-US')}`;
     
-    document.getElementById('stat-balance').innerText = fmt(appData.balance);
-    
     let totalInvestedValue = 0;
     let activeCount = 0;
     appData.projects.forEach(p => {
