@@ -12,6 +12,7 @@ let appData = {
 function saveState() {
     localStorage.setItem('seedup_data', JSON.stringify(appData));
     updateGlobalUI();
+    renderSidebarProjects();
 }
 
 function loadState() {
@@ -60,6 +61,7 @@ function handleLogin(event) {
         setTimeout(() => dashboardLayout.classList.remove('opacity-0', 'pointer-events-none'), 50);
         
         updateGlobalUI();
+        renderSidebarProjects();
         renderDashboardProjects();
         populateProjectSelects();
     }, 500);
@@ -94,7 +96,7 @@ function updateGlobalUI() {
         }
     });
     
-    document.getElementById('total-networth').innerText = fmt(appData.balance + totalInvestedValue);
+    document.getElementById('total-networth').innerText = fmt(totalInvestedValue);
     document.getElementById('stat-projects').innerText = activeCount;
     document.getElementById('stat-done').innerText = appData.projects.filter(p => p.status === 'liquidated').length;
     
@@ -103,7 +105,26 @@ function updateGlobalUI() {
     
     document.getElementById('user-level-text').innerText = `Nivel ${appData.level}`;
     document.getElementById('user-xp-text').innerText = `${xpInLevel}/100 puntos`;
-    document.getElementById('user-xp-bar').style.width = `${xpInLevel}%`;
+    document.getElementById('user-xp-bar') ? document.getElementById('user-xp-bar').style.width = `${xpInLevel}%` : null;
+}
+
+function renderSidebarProjects() {
+    const list = document.getElementById('sidebar-projects-list');
+    list.innerHTML = '';
+    
+    if (appData.projects.length === 0) {
+        list.innerHTML = `<div class="px-4 py-2 text-xs text-gray-400 italic">No tienes proyectos</div>`;
+        return;
+    }
+    
+    appData.projects.forEach(p => {
+        const isClosed = p.status === 'liquidated';
+        list.innerHTML += `
+        <a href="#" onclick="openAIAnalytics('${p.id}', this)" class="nav-item-proj flex items-center gap-3 px-4 py-2 rounded-lg text-gray-500 dark:text-slate-400 hover:bg-gray-100 dark:hover:bg-slate-800 transition-all font-medium text-sm">
+            <svg class="w-4 h-4 ${isClosed ? 'text-gray-400' : 'text-[#4ade80]'} flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+            <span class="truncate">${p.name}</span>
+        </a>`;
+    });
 }
 
 // ==========================================
@@ -113,7 +134,6 @@ function getSwalBg() { return document.documentElement.classList.contains('dark'
 function getSwalColor() { return document.documentElement.classList.contains('dark') ? '#fff' : '#1f2937'; }
 
 function showUpgradeModal() {
-    const isDark = document.documentElement.classList.contains('dark');
     Swal.fire({
         title: 'Elige tu Plan SeedUp',
         html: `
@@ -176,6 +196,9 @@ function navigate(viewId, element, breadcrumbText) {
         document.querySelectorAll('.nav-item').forEach(el => {
             el.className = "nav-item flex items-center gap-3 px-4 py-2.5 rounded-lg text-gray-500 dark:text-slate-400 hover:bg-gray-100 dark:hover:bg-slate-800 transition-all font-medium text-sm";
         });
+        document.querySelectorAll('.nav-item-proj').forEach(el => {
+            el.classList.remove('bg-gray-100', 'dark:bg-slate-800', 'text-[#344767]', 'dark:text-white');
+        });
         
         element.className = "nav-item active flex items-center gap-3 px-4 py-2.5 rounded-lg bg-[#1a2035] text-white dark:bg-brand-primary dark:text-gray-900 font-medium shadow-md transition-all text-sm";
         
@@ -201,6 +224,101 @@ function toggleSidebar() {
     document.getElementById('sidebar').classList.toggle('-translate-x-full');
 }
 
+function openAIAnalytics(id, element) {
+    appData.activeProjectId = id;
+    saveState();
+    
+    document.querySelectorAll('.view').forEach(view => {
+        view.classList.remove('active', 'hidden');
+        view.classList.add('hidden');
+    });
+    
+    const target = document.getElementById('ai-analytics');
+    target.classList.remove('hidden');
+    target.classList.add('active');
+    
+    document.querySelectorAll('.nav-item').forEach(el => {
+        el.className = "nav-item flex items-center gap-3 px-4 py-2.5 rounded-lg text-gray-500 dark:text-slate-400 hover:bg-gray-100 dark:hover:bg-slate-800 transition-all font-medium text-sm";
+    });
+    
+    document.querySelectorAll('.nav-item-proj').forEach(el => {
+        el.classList.remove('bg-gray-100', 'dark:bg-slate-800', 'text-[#344767]', 'dark:text-white');
+    });
+    
+    if(element) element.classList.add('bg-gray-100', 'dark:bg-slate-800', 'text-[#344767]', 'dark:text-white');
+    
+    document.getElementById('topbar-title').innerText = "Análisis IA";
+    document.getElementById('breadcrumb-current').innerText = "Mentoría IA";
+    
+    const sidebar = document.getElementById('sidebar');
+    if(!sidebar.classList.contains('-translate-x-full')) toggleSidebar();
+    
+    const p = appData.projects.find(x => x.id === id);
+    if(p) renderAIAnalyticsState(p);
+}
+
+function renderAIAnalyticsState(p) {
+    document.getElementById('ai-proj-name').innerText = p.name;
+    document.getElementById('ai-proj-desc').innerText = p.description || 'Sin descripción provista.';
+    document.getElementById('ai-proj-budget').innerText = `$${Math.floor(p.initialAmount).toLocaleString('en-US')}`;
+    
+    const resultsBox = document.getElementById('ai-results-box');
+    resultsBox.innerHTML = `
+        <div class="flex items-center justify-center py-10">
+            <div class="animate-pulse flex flex-col items-center text-center">
+                <svg class="w-12 h-12 text-[#4ade80] mb-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                <span class="text-[#344767] dark:text-white font-bold text-lg">SeedUp AI está analizando el modelo...</span>
+                <span class="text-gray-500 dark:text-slate-400 text-sm mt-1">Evaluando mercado, competencia y riesgo financiero.</span>
+            </div>
+        </div>
+    `;
+
+    setTimeout(() => {
+        let riskStr = p.type === 'high' ? 'Alto Riesgo (SaaS / App)' : (p.type === 'medium' ? 'Riesgo Medio (E-commerce)' : 'Bajo Riesgo (Franquicia)');
+        let analysis = '';
+        if (p.type === 'high') {
+            analysis = `Este modelo presenta alta escalabilidad tecnológica pero requiere un "product-market fit" extremadamente rápido. Con un capital aislado de $${p.initialAmount.toLocaleString('en-US')}, tu pista de aterrizaje (runway) inicial es muy sensible a los costos de desarrollo.<br><br><strong>💡 Recomendación del Agente:</strong> Prioriza construir un prototipo de baja fidelidad y validar la retención de usuarios en los primeros 3 meses antes de invertir fuerte en marketing de pago.`;
+        } else if (p.type === 'medium') {
+            analysis = `El sector de E-commerce tiene barreras de entrada moderadas pero una competencia feroz. Tu mayor reto financiero será optimizar el CAC (Costo de Adquisición de Cliente).<br><br><strong>💡 Recomendación del Agente:</strong> Utiliza micro-influencers para validar el interés orgánico y optimiza tu cadena de suministro antes de quemar tus $${p.initialAmount.toLocaleString('en-US')} en publicidad masiva.`;
+        } else {
+            analysis = `Los modelos tradicionales como franquicias gozan de un flujo de caja mucho más predecible. La clave del éxito radicará en la ubicación y la eficiencia de tus operaciones diarias.<br><br><strong>💡 Recomendación del Agente:</strong> Mantén tus costos fijos iniciales estrictamente por debajo del 40% de tu capital de $${p.initialAmount.toLocaleString('en-US')} para asegurar tu supervivencia durante el primer año.`;
+        }
+
+        resultsBox.innerHTML = `
+            <div class="bg-gray-50 dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-xl p-8 text-sm text-gray-700 dark:text-gray-300 shadow-sm w-full animate-[fadeUp_0.4s_ease_forwards]">
+                <div class="flex items-center gap-3 mb-5">
+                    <div class="w-10 h-10 bg-green-100 dark:bg-green-500/20 text-green-600 dark:text-green-400 rounded-full flex items-center justify-center">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-[#344767] dark:text-white text-lg">Diagnóstico de Viabilidad Completado</h4>
+                        <span class="text-xs text-green-600 dark:text-green-400 font-bold">Generado exitosamente</span>
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                    <div class="bg-white dark:bg-brand-darkcard p-4 rounded-lg border border-gray-100 dark:border-slate-700/50">
+                        <span class="text-xs text-gray-500 block mb-1 uppercase tracking-wide font-bold">Perfil de Riesgo Detectado</span>
+                        <span class="text-[#344767] dark:text-white font-bold">${riskStr}</span>
+                    </div>
+                    <div class="bg-white dark:bg-brand-darkcard p-4 rounded-lg border border-gray-100 dark:border-slate-700/50">
+                        <span class="text-xs text-gray-500 block mb-1 uppercase tracking-wide font-bold">Salud Financiera Inicial</span>
+                        <span class="text-[#344767] dark:text-white font-bold">Presupuesto Simulado de $${p.initialAmount.toLocaleString('en-US')}</span>
+                    </div>
+                </div>
+                
+                <div class="bg-indigo-50 dark:bg-indigo-500/10 border-l-4 border-indigo-500 p-5 rounded-r-lg">
+                    <p class="leading-relaxed text-indigo-900 dark:text-indigo-200 text-sm">${analysis}</p>
+                </div>
+                
+                <div class="mt-6 flex justify-end">
+                    <button onclick="navigate('simulator', document.querySelectorAll('.nav-item')[1], 'Simulador'); switchSimulatorProject('${p.id}');" class="bg-[#1a2035] dark:bg-brand-primary text-white dark:text-gray-900 px-6 py-2 rounded-lg font-bold text-sm hover:shadow-lg transition-all uppercase">Ir al Simulador de Mercado</button>
+                </div>
+            </div>
+        `;
+    }, 2500);
+}
+
 // ==========================================
 // GESTIÓN DE PROYECTOS (CRUD)
 // ==========================================
@@ -209,19 +327,24 @@ const typeLabels = { high: 'SaaS / App', medium: 'E-commerce', low: 'Franquicia'
 function createNewProject(event) {
     event.preventDefault();
     const name = document.getElementById('new-proj-name').value;
+    const desc = document.getElementById('new-proj-desc').value;
     const type = document.getElementById('new-proj-type').value;
     const amount = parseFloat(document.getElementById('new-proj-amount').value);
     
-    if (amount > appData.balance) {
-        Swal.fire({ icon: 'error', title: 'Fondos Insuficientes', text: 'No tienes suficiente capital.', background: getSwalBg(), color: getSwalColor(), confirmButtonColor: '#ef4444' });
-        return;
-    }
-    
-    appData.balance -= amount;
+    // Capital no está enlazado a appData.balance, así que pueden simular la cantidad que quieran.
     
     const newProject = {
         id: 'proj_' + Date.now(),
-        name: name, type: type, initialAmount: amount, currentValue: amount, month: 0, history: [amount], events: [], validation: [false, false, false, false], status: 'active'
+        name: name, 
+        description: desc,
+        type: type, 
+        initialAmount: amount, 
+        currentValue: amount, 
+        month: 0, 
+        history: [amount], 
+        events: [], 
+        validation: [false, false, false, false], 
+        status: 'active'
     };
     
     appData.projects.push(newProject);
@@ -229,10 +352,11 @@ function createNewProject(event) {
     saveState();
     
     event.target.reset();
-    Swal.fire({ icon: 'success', title: 'Proyecto Lanzado', text: `La empresa ${name} ha sido creada.`, background: getSwalBg(), color: getSwalColor(), confirmButtonColor: '#4ade80' });
+    Swal.fire({ icon: 'success', title: 'Proyecto Aislado Creado', text: `La empresa ${name} ha sido lanzada en el simulador.`, background: getSwalBg(), color: getSwalColor(), confirmButtonColor: '#4ade80' });
     
     renderDashboardProjects();
     populateProjectSelects();
+    renderSidebarProjects(); // Update sidebar!
 }
 
 function renderDashboardProjects() {
@@ -489,11 +613,11 @@ function advanceMonth() {
     if (p.currentValue < (p.initialAmount * 0.05)) { 
         p.status = 'liquidated';
         p.events.push({month: p.month, msg: 'BANCARROTA TOTAL.', type:'bad'});
-        Swal.fire({ icon: 'error', title: 'Bancarrota', text: 'Perdiste toda la liquidez.', background: getSwalBg(), color: getSwalColor(), confirmButtonColor: '#ef4444' });
+        Swal.fire({ icon: 'error', title: 'Bancarrota', text: 'Perdiste toda la liquidez del proyecto.', background: getSwalBg(), color: getSwalColor(), confirmButtonColor: '#ef4444' });
     }
 
     if (p.month === 12 && p.status === 'active') {
-        Swal.fire({ icon: 'success', title: 'Año Fiscal Completado', text: 'Ahora puedes liquidar la empresa.', background: getSwalBg(), color: getSwalColor(), confirmButtonColor: '#4ade80' });
+        Swal.fire({ icon: 'success', title: 'Año Fiscal Completado', text: 'El proyecto finalizó su ciclo de evaluación.', background: getSwalBg(), color: getSwalColor(), confirmButtonColor: '#4ade80' });
     }
 
     appData.xp += 5;
@@ -507,7 +631,7 @@ function liquidateProject() {
     
     Swal.fire({
         title: '¿Liquidar Posición?',
-        text: `Retornar $${Math.floor(p.currentValue).toLocaleString('en-US')} al balance principal.`,
+        text: `Detendrás la simulación de este proyecto para siempre.`,
         icon: 'question',
         showCancelButton: true,
         confirmButtonColor: '#1a2035',
@@ -518,11 +642,11 @@ function liquidateProject() {
     }).then((result) => {
         if (result.isConfirmed) {
             p.status = 'liquidated';
-            appData.balance += p.currentValue;
+            // Ya no sumamos al balance global.
             p.events.push({month: p.month, msg: 'Liquidación Manual.', type:'neutral'});
             saveState();
             renderSimulatorState(p);
-            Swal.fire({title: 'Ejecutado', text: 'Capital liberado.', icon: 'success', background: getSwalBg(), color: getSwalColor()});
+            Swal.fire({title: 'Ejecutado', text: 'Simulación detenida.', icon: 'success', background: getSwalBg(), color: getSwalColor()});
         }
     });
 }
