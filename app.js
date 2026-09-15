@@ -76,7 +76,7 @@ function logout() {
         loginView.classList.add('flex');
         setTimeout(() => loginView.classList.remove('opacity-0'), 50);
         
-        navigate('dashboard', document.querySelector('.nav-item'), 'Dashboard');
+        navigate('dashboard', document.querySelector('.nav-item'), 'Panel');
     }, 500);
 }
 
@@ -101,9 +101,59 @@ function updateGlobalUI() {
     appData.level = Math.floor(appData.xp / 100) + 1;
     const xpInLevel = appData.xp % 100;
     
-    document.getElementById('user-level-text').innerText = `Level ${appData.level}`;
-    document.getElementById('user-xp-text').innerText = `${xpInLevel}/100`;
+    document.getElementById('user-level-text').innerText = `Nivel ${appData.level}`;
+    document.getElementById('user-xp-text').innerText = `${xpInLevel}/100 puntos`;
     document.getElementById('user-xp-bar').style.width = `${xpInLevel}%`;
+}
+
+// ==========================================
+// UPGRADE MODAL
+// ==========================================
+function getSwalBg() { return document.documentElement.classList.contains('dark') ? '#0f172a' : '#ffffff'; }
+function getSwalColor() { return document.documentElement.classList.contains('dark') ? '#fff' : '#1f2937'; }
+
+function showUpgradeModal() {
+    const isDark = document.documentElement.classList.contains('dark');
+    Swal.fire({
+        title: 'Elige tu Plan SeedUp',
+        html: `
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-left mt-4 font-inter">
+            <!-- Free -->
+            <div class="border border-gray-200 dark:border-slate-700 rounded-xl p-5 bg-gray-50 dark:bg-slate-900 shadow-sm flex flex-col justify-between">
+                <div>
+                    <h3 class="font-bold text-lg text-[#344767] dark:text-white">Plan Básico</h3>
+                    <div class="my-3"><span class="text-3xl font-bold text-[#344767] dark:text-white font-orbitron">$0</span><span class="text-gray-500 text-sm"> /mes</span></div>
+                    <ul class="text-sm text-gray-600 dark:text-gray-400 space-y-3 mt-4">
+                        <li class="flex items-start gap-2"><svg class="w-5 h-5 text-gray-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg> Simulador de micro-inversiones</li>
+                        <li class="flex items-start gap-2"><svg class="w-5 h-5 text-gray-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg> Registro de logros básico</li>
+                        <li class="flex items-start gap-2"><svg class="w-5 h-5 text-gray-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg> 1 Proyecto activo</li>
+                    </ul>
+                </div>
+                <button class="mt-6 w-full py-2.5 bg-gray-200 dark:bg-slate-800 text-gray-500 dark:text-slate-400 font-bold rounded-lg cursor-not-allowed uppercase tracking-wide text-xs" disabled>Plan Actual</button>
+            </div>
+            <!-- Premium -->
+            <div class="border-2 border-[#4ade80] rounded-xl p-5 bg-white dark:bg-brand-darkcard shadow-lg relative flex flex-col justify-between">
+                <div class="absolute -top-3 right-4 bg-[#4ade80] text-gray-900 text-[0.65rem] font-bold px-2 py-1 rounded shadow uppercase">Recomendado</div>
+                <div>
+                    <h3 class="font-bold text-lg text-[#344767] dark:text-white flex items-center gap-2">SeedUp Premium <svg class="w-4 h-4 text-[#4ade80]" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg></h3>
+                    <div class="my-3"><span class="text-3xl font-bold text-[#344767] dark:text-white font-orbitron">$4.99</span><span class="text-gray-500 text-sm"> /mes</span></div>
+                    <ul class="text-sm text-gray-600 dark:text-gray-300 space-y-3 mt-4">
+                        <li class="flex items-start gap-2"><svg class="w-5 h-5 text-[#4ade80] flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg> Reportes analíticos avanzados</li>
+                        <li class="flex items-start gap-2"><svg class="w-5 h-5 text-[#4ade80] flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg> Mentoría digital automatizada (IA)</li>
+                        <li class="flex items-start gap-2"><svg class="w-5 h-5 text-[#4ade80] flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg> Herramientas de validación profunda</li>
+                        <li class="flex items-start gap-2"><svg class="w-5 h-5 text-[#4ade80] flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg> Proyectos y simulaciones ilimitadas</li>
+                    </ul>
+                </div>
+                <button onclick="Swal.close(); Swal.fire({icon: 'success', title: '¡Gracias por tu interés!', text: 'La pasarela de pago se integrará en la versión final.', background: getSwalBg(), color: getSwalColor(), confirmButtonColor: '#4ade80'})" class="mt-6 w-full py-2.5 bg-[#1a2035] dark:bg-brand-primary text-white dark:text-gray-900 font-bold rounded-lg hover:shadow-lg transition-all uppercase tracking-wide text-xs">Mejorar Ahora</button>
+            </div>
+        </div>
+        `,
+        width: 700,
+        showConfirmButton: false,
+        showCloseButton: true,
+        background: getSwalBg(),
+        color: getSwalColor()
+    });
 }
 
 // ==========================================
@@ -154,10 +204,7 @@ function toggleSidebar() {
 // ==========================================
 // GESTIÓN DE PROYECTOS (CRUD)
 // ==========================================
-const typeLabels = { high: 'SaaS / App', medium: 'E-commerce', low: 'Franchise' };
-
-function getSwalBg() { return document.documentElement.classList.contains('dark') ? '#0f172a' : '#ffffff'; }
-function getSwalColor() { return document.documentElement.classList.contains('dark') ? '#fff' : '#1f2937'; }
+const typeLabels = { high: 'SaaS / App', medium: 'E-commerce', low: 'Franquicia' };
 
 function createNewProject(event) {
     event.preventDefault();
@@ -166,7 +213,7 @@ function createNewProject(event) {
     const amount = parseFloat(document.getElementById('new-proj-amount').value);
     
     if (amount > appData.balance) {
-        Swal.fire({ icon: 'error', title: 'Insufficient Funds', text: 'You do not have enough capital.', background: getSwalBg(), color: getSwalColor(), confirmButtonColor: '#ef4444' });
+        Swal.fire({ icon: 'error', title: 'Fondos Insuficientes', text: 'No tienes suficiente capital.', background: getSwalBg(), color: getSwalColor(), confirmButtonColor: '#ef4444' });
         return;
     }
     
@@ -182,7 +229,7 @@ function createNewProject(event) {
     saveState();
     
     event.target.reset();
-    Swal.fire({ icon: 'success', title: 'Project Launched', text: `${name} has been created.`, background: getSwalBg(), color: getSwalColor(), confirmButtonColor: '#4ade80' });
+    Swal.fire({ icon: 'success', title: 'Proyecto Lanzado', text: `La empresa ${name} ha sido creada.`, background: getSwalBg(), color: getSwalColor(), confirmButtonColor: '#4ade80' });
     
     renderDashboardProjects();
     populateProjectSelects();
@@ -193,7 +240,7 @@ function renderDashboardProjects() {
     container.innerHTML = '';
     
     if (appData.projects.length === 0) {
-        container.innerHTML = `<tr><td colspan="4" class="text-center py-6 text-gray-400">No projects found.</td></tr>`;
+        container.innerHTML = `<tr><td colspan="4" class="text-center py-6 text-gray-400">No hay proyectos.</td></tr>`;
         return;
     }
     
@@ -202,8 +249,8 @@ function renderDashboardProjects() {
         const prog = isDone ? 100 : Math.round((p.month / 12) * 100);
         
         let actions = !isDone 
-            ? `<button onclick="jumpToSim('${p.id}')" class="text-xs font-bold text-blue-500 hover:text-blue-700 uppercase">Simulate</button>`
-            : `<span class="text-xs font-bold text-gray-400 uppercase">Done</span>`;
+            ? `<button onclick="jumpToSim('${p.id}')" class="text-xs font-bold text-blue-500 hover:text-blue-700 uppercase">Simular</button>`
+            : `<span class="text-xs font-bold text-gray-400 uppercase">Cerrado</span>`;
 
         container.innerHTML += `
             <tr class="border-b border-gray-100 dark:border-slate-800 last:border-0 hover:bg-gray-50 dark:hover:bg-slate-800/50 transition-colors">
@@ -242,7 +289,7 @@ function renderDashboardProjects() {
 function jumpToSim(id) {
     appData.activeProjectId = id;
     saveState();
-    navigate('simulator', document.querySelectorAll('.nav-item')[1], 'Simulator');
+    navigate('simulator', document.querySelectorAll('.nav-item')[1], 'Simulador');
 }
 
 function populateProjectSelects() {
@@ -252,7 +299,7 @@ function populateProjectSelects() {
     simSelect.innerHTML = ''; valSelect.innerHTML = '';
     
     appData.projects.forEach(p => {
-        const tag = p.status === 'liquidated' ? ' (Closed)' : '';
+        const tag = p.status === 'liquidated' ? ' (Cerrado)' : '';
         const option = `<option value="${p.id}">${p.name}${tag}</option>`;
         simSelect.innerHTML += option;
         valSelect.innerHTML += option;
@@ -271,19 +318,19 @@ let investmentChart = null;
 
 const eventCards = {
     high: [
-        { msg: "Featured on TechCrunch. Lead spike.", mod: 0.8, type: 'good' }, 
-        { msg: "AWS outage. Users demanding refunds.", mod: -0.5, type: 'bad' },
-        { msg: "Angel investor injects capital.", mod: 0.5, type: 'good' },
-        { msg: "Critical bug deletes DB.", mod: -0.6, type: 'bad' }
+        { msg: "Destacado en TechCrunch. Aumento de leads.", mod: 0.8, type: 'good' }, 
+        { msg: "Caída de AWS. Usuarios exigen reembolsos.", mod: -0.5, type: 'bad' },
+        { msg: "Inversionista Ángel inyecta capital.", mod: 0.5, type: 'good' },
+        { msg: "Bug crítico borra bases de datos.", mod: -0.6, type: 'bad' }
     ],
     medium: [
-        { msg: "Viral on TikTok. Sales boost.", mod: 0.3, type: 'good' },
-        { msg: "Customs retained your inventory.", mod: -0.2, type: 'bad' },
-        { msg: "Black Friday success.", mod: 0.2, type: 'good' }
+        { msg: "Viral en TikTok. Aumento de ventas.", mod: 0.3, type: 'good' },
+        { msg: "Aduana retiene tu inventario.", mod: -0.2, type: 'bad' },
+        { msg: "Black Friday muy exitoso.", mod: 0.2, type: 'good' }
     ],
     low: [
-        { msg: "City repaired sidewalks, traffic up.", mod: 0.05, type: 'good' },
-        { msg: "Water cut in the sector.", mod: -0.05, type: 'bad' }
+        { msg: "La alcaldía repara calles, mejora el tráfico.", mod: 0.05, type: 'good' },
+        { msg: "Corte de agua en tu sector.", mod: -0.05, type: 'bad' }
     ]
 };
 
@@ -306,7 +353,7 @@ function switchSimulatorProject(forceId) {
 }
 
 function renderSimulatorState(p) {
-    document.getElementById('sim-month-badge').innerText = `Month ${p.month} / 12`;
+    document.getElementById('sim-month-badge').innerText = `Mes ${p.month} / 12`;
     document.getElementById('sim-current-val').innerText = `$${Math.floor(p.currentValue).toLocaleString('en-US')}`;
     
     const profit = p.currentValue - p.initialAmount;
@@ -327,18 +374,18 @@ function renderSimulatorState(p) {
         btnAdv.classList.add('hidden');
         if (p.status === 'active') {
             btnLiq.classList.remove('hidden');
-            btnLiq.innerText = "Liquidate Project";
+            btnLiq.innerText = "Liquidar Proyecto";
         } else {
             btnLiq.classList.add('hidden');
         }
     } else {
         btnAdv.classList.remove('hidden');
         btnLiq.classList.remove('hidden');
-        btnLiq.innerText = "Liquidate Position";
+        btnLiq.innerText = "Liquidar Posición";
     }
     
     const log = document.getElementById('sim-event-log');
-    log.innerHTML = p.events.length === 0 ? '<li class="text-gray-400 dark:text-slate-500 italic text-xs">Advance a month to see events...</li>' : '';
+    log.innerHTML = p.events.length === 0 ? '<li class="text-gray-400 dark:text-slate-500 italic text-xs">Avanza un mes para ver eventos...</li>' : '';
     
     p.events.forEach(e => {
         let icon = e.type === 'good' ? '<svg class="w-4 h-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"></path></svg>' : 
@@ -346,7 +393,7 @@ function renderSimulatorState(p) {
         log.innerHTML = `<li class="flex gap-3 items-start border-b border-gray-100 dark:border-slate-700/50 pb-3">
             <div class="mt-0.5">${icon}</div>
             <div>
-                <span class="text-[#344767] dark:text-white font-bold block text-xs">Month ${e.month}</span>
+                <span class="text-[#344767] dark:text-white font-bold block text-xs">Mes ${e.month}</span>
                 <span class="text-gray-500 dark:text-slate-400 text-xs">${e.msg}</span>
             </div>
         </li>` + log.innerHTML;
@@ -374,7 +421,7 @@ function drawChart(p) {
         const ctx = document.getElementById('investmentChart').getContext('2d');
         investmentChart = new Chart(ctx, {
             type: 'line',
-            data: { labels: [], datasets: [{ label: 'Valuation', data: [], borderColor: '#4ade80', backgroundColor: 'rgba(255, 255, 255, 0.1)', borderWidth: 3, fill: true, tension: 0.3, pointBackgroundColor: '#fff', pointBorderColor: '#4ade80', pointBorderWidth: 2 }] },
+            data: { labels: [], datasets: [{ label: 'Valoración', data: [], borderColor: '#4ade80', backgroundColor: 'rgba(255, 255, 255, 0.1)', borderWidth: 3, fill: true, tension: 0.3, pointBackgroundColor: '#fff', pointBorderColor: '#4ade80', pointBorderWidth: 2 }] },
             options: {
                 responsive: true, maintainAspectRatio: false,
                 plugins: { legend: { display: false } },
@@ -395,7 +442,6 @@ function drawChart(p) {
     investmentChart.data.labels = labels;
     investmentChart.data.datasets[0].data = dataPad;
     
-    // In Argon design, charts often use a clean white line over the gradient background, but we can stick to green/red for context.
     const profit = p.currentValue - p.initialAmount;
     if (profit >= 0) {
         investmentChart.data.datasets[0].borderColor = '#4ade80';
@@ -428,7 +474,7 @@ function advanceMonth() {
         Swal.fire({
             toast: true, position: 'top-end', showConfirmButton: false, timer: 4000,
             icon: randomEvt.type === 'good' ? 'success' : 'warning',
-            title: `Month ${p.month}: Market Event`,
+            title: `Mes ${p.month}: Evento de Mercado`,
             text: randomEvt.msg,
             background: getSwalBg(), color: getSwalColor()
         });
@@ -442,12 +488,12 @@ function advanceMonth() {
     
     if (p.currentValue < (p.initialAmount * 0.05)) { 
         p.status = 'liquidated';
-        p.events.push({month: p.month, msg: 'BANKRUPT.', type:'bad'});
-        Swal.fire({ icon: 'error', title: 'Bankruptcy', text: 'You lost all liquidity.', background: getSwalBg(), color: getSwalColor(), confirmButtonColor: '#ef4444' });
+        p.events.push({month: p.month, msg: 'BANCARROTA TOTAL.', type:'bad'});
+        Swal.fire({ icon: 'error', title: 'Bancarrota', text: 'Perdiste toda la liquidez.', background: getSwalBg(), color: getSwalColor(), confirmButtonColor: '#ef4444' });
     }
 
     if (p.month === 12 && p.status === 'active') {
-        Swal.fire({ icon: 'success', title: 'Fiscal Year Complete', text: 'You can now liquidate.', background: getSwalBg(), color: getSwalColor(), confirmButtonColor: '#4ade80' });
+        Swal.fire({ icon: 'success', title: 'Año Fiscal Completado', text: 'Ahora puedes liquidar la empresa.', background: getSwalBg(), color: getSwalColor(), confirmButtonColor: '#4ade80' });
     }
 
     appData.xp += 5;
@@ -460,23 +506,23 @@ function liquidateProject() {
     if(!p || p.status !== 'active') return;
     
     Swal.fire({
-        title: 'Liquidate Position?',
-        text: `Return $${Math.floor(p.currentValue).toLocaleString('en-US')} to main balance.`,
+        title: '¿Liquidar Posición?',
+        text: `Retornar $${Math.floor(p.currentValue).toLocaleString('en-US')} al balance principal.`,
         icon: 'question',
         showCancelButton: true,
         confirmButtonColor: '#1a2035',
         cancelButtonColor: '#ef4444',
-        confirmButtonText: 'Confirm',
-        cancelButtonText: 'Cancel',
+        confirmButtonText: 'Confirmar',
+        cancelButtonText: 'Cancelar',
         background: getSwalBg(), color: getSwalColor()
     }).then((result) => {
         if (result.isConfirmed) {
             p.status = 'liquidated';
             appData.balance += p.currentValue;
-            p.events.push({month: p.month, msg: 'Manual Liquidation.', type:'neutral'});
+            p.events.push({month: p.month, msg: 'Liquidación Manual.', type:'neutral'});
             saveState();
             renderSimulatorState(p);
-            Swal.fire({title: 'Executed', text: 'Capital freed.', icon: 'success', background: getSwalBg(), color: getSwalColor()});
+            Swal.fire({title: 'Ejecutado', text: 'Capital liberado.', icon: 'success', background: getSwalBg(), color: getSwalColor()});
         }
     });
 }
@@ -485,10 +531,10 @@ function liquidateProject() {
 // VALIDADOR LEAN STARTUP
 // ==========================================
 const validationChecklist = [
-    "Interviewed 5 potential customers (Problem/Solution Fit).",
-    "Defined my Buyer Persona.",
-    "Studied 2 direct competitors.",
-    "Drafted a monetization model (Cost structure)."
+    "Entrevistas de problema (Ajuste Problema/Solución).",
+    "Definición clara de Buyer Persona.",
+    "Análisis de 2 competidores directos.",
+    "Borrador de modelo de monetización."
 ];
 
 function switchValProject(forceId) {
@@ -535,7 +581,7 @@ function toggleValidation(index) {
     
     if (p.validation[index]) {
         appData.xp += 20;
-        Swal.fire({ toast: true, position: 'top-end', showConfirmButton: false, timer: 2000, icon: 'success', title: '+20 XP', text: 'Task completed.', background: getSwalBg(), color: getSwalColor() });
+        Swal.fire({ toast: true, position: 'top-end', showConfirmButton: false, timer: 2000, icon: 'success', title: '+20 XP', text: 'Tarea completada.', background: getSwalBg(), color: getSwalColor() });
     } else {
         appData.xp -= 20;
     }
@@ -552,13 +598,13 @@ function evaluateValidation(p) {
     resultBox.className = 'mt-6 p-5 rounded-lg border bg-gray-50 dark:bg-slate-900 text-sm shadow-sm transition-all duration-300 flex items-center gap-3';
     
     if (score === 100) {
-        resultBox.innerHTML = '<svg class="w-8 h-8 text-green-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg> <div class="text-left"><span class="block text-green-700 dark:text-green-400 font-bold">Risk Mitigated</span><span class="text-green-600 dark:text-green-500 font-normal">You have complete validation. Ready to build!</span></div>';
+        resultBox.innerHTML = '<svg class="w-8 h-8 text-green-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg> <div class="text-left"><span class="block text-green-700 dark:text-green-400 font-bold">Riesgo Mitigado</span><span class="text-green-600 dark:text-green-500 font-normal">Validación completa. ¡Listo para construir!</span></div>';
         resultBox.classList.add('border-green-200', 'dark:border-green-500/30', 'bg-green-50', 'dark:bg-green-500/10');
     } else if (score >= 50) {
-        resultBox.innerHTML = '<svg class="w-8 h-8 text-yellow-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg> <div class="text-left"><span class="block text-yellow-700 dark:text-yellow-400 font-bold">Moderate Risk</span><span class="text-yellow-600 dark:text-yellow-500 font-normal">Missing crucial market validation.</span></div>';
+        resultBox.innerHTML = '<svg class="w-8 h-8 text-yellow-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg> <div class="text-left"><span class="block text-yellow-700 dark:text-yellow-400 font-bold">Riesgo Moderado</span><span class="text-yellow-600 dark:text-yellow-500 font-normal">Falta validación crucial de mercado.</span></div>';
         resultBox.classList.add('border-yellow-200', 'dark:border-yellow-500/30', 'bg-yellow-50', 'dark:bg-yellow-500/10');
     } else {
-        resultBox.innerHTML = '<svg class="w-8 h-8 text-red-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg> <div class="text-left"><span class="block text-red-700 dark:text-red-400 font-bold">Extreme Risk</span><span class="text-red-600 dark:text-red-500 font-normal">Do not launch without talking to real customers.</span></div>';
+        resultBox.innerHTML = '<svg class="w-8 h-8 text-red-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg> <div class="text-left"><span class="block text-red-700 dark:text-red-400 font-bold">Riesgo Extremo</span><span class="text-red-600 dark:text-red-500 font-normal">No lances sin hablar con clientes reales.</span></div>';
         resultBox.classList.add('border-red-200', 'dark:border-red-500/30', 'bg-red-50', 'dark:bg-red-500/10');
     }
 }
