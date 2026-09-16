@@ -748,23 +748,46 @@ function startLesson(lessonId) {
     } else if (lessonId === 'lean') {
         Swal.fire({
             title: 'Lección: Metodología Lean',
-            html: '<p class="text-sm mb-4 text-left">El ciclo Lean Startup se basa en: <b>Construir, Medir, Aprender</b>.<br><br>¿Cuál es el objetivo principal de lanzar un MVP (Producto Mínimo Viable)?</p>',
-            input: 'radio',
-            inputOptions: {
-                '1': 'A) Empezar a generar ingresos de inmediato.',
-                '2': 'B) Maximizar el aprendizaje validado con el menor esfuerzo posible.',
-                '3': 'C) Tener un producto perfecto y sin errores.'
-            },
-            inputValidator: (value) => {
-                if (!value) return '¡Debes elegir una respuesta!';
-                if (value !== '2') return 'Respuesta incorrecta. Pista: Lo más importante al principio es APRENDER.';
-            },
+            html: `
+            <div class="text-left font-inter mt-2">
+                <p class="text-sm mb-5 text-[#344767] dark:text-slate-300">El ciclo Lean Startup se basa en: <b>Construir, Medir, Aprender</b>.<br><br>¿Cuál es el objetivo principal de lanzar un MVP (Producto Mínimo Viable)?</p>
+                <div class="space-y-3">
+                    <label class="flex items-start gap-3 p-3 rounded-xl border border-gray-200 dark:border-slate-700 hover:bg-gray-50 dark:hover:bg-slate-800/50 cursor-pointer transition-colors group">
+                        <input type="radio" name="lean_quiz" value="1" class="mt-1 w-4 h-4 text-brand-primary focus:ring-brand-primary accent-brand-primary cursor-pointer">
+                        <span class="text-sm text-gray-700 dark:text-gray-300 group-hover:text-[#344767] dark:group-hover:text-white transition-colors">A) Empezar a generar ingresos de inmediato.</span>
+                    </label>
+                    <label class="flex items-start gap-3 p-3 rounded-xl border border-gray-200 dark:border-slate-700 hover:bg-gray-50 dark:hover:bg-slate-800/50 cursor-pointer transition-colors group">
+                        <input type="radio" name="lean_quiz" value="2" class="mt-1 w-4 h-4 text-brand-primary focus:ring-brand-primary accent-brand-primary cursor-pointer">
+                        <span class="text-sm text-gray-700 dark:text-gray-300 group-hover:text-[#344767] dark:group-hover:text-white transition-colors">B) Maximizar el aprendizaje validado con el menor esfuerzo posible.</span>
+                    </label>
+                    <label class="flex items-start gap-3 p-3 rounded-xl border border-gray-200 dark:border-slate-700 hover:bg-gray-50 dark:hover:bg-slate-800/50 cursor-pointer transition-colors group">
+                        <input type="radio" name="lean_quiz" value="3" class="mt-1 w-4 h-4 text-brand-primary focus:ring-brand-primary accent-brand-primary cursor-pointer">
+                        <span class="text-sm text-gray-700 dark:text-gray-300 group-hover:text-[#344767] dark:group-hover:text-white transition-colors">C) Tener un producto perfecto y sin errores.</span>
+                    </label>
+                </div>
+            </div>
+            `,
+            showCancelButton: true,
             confirmButtonText: 'Responder',
+            cancelButtonText: 'Cancelar',
+            cancelButtonColor: '#ef4444',
             background: getSwalBg(),
             color: getSwalColor(),
-            confirmButtonColor: '#4ade80'
+            confirmButtonColor: '#4ade80',
+            preConfirm: () => {
+                const selected = document.querySelector('input[name="lean_quiz"]:checked');
+                if (!selected) {
+                    Swal.showValidationMessage('¡Debes elegir una respuesta!');
+                    return false;
+                }
+                if (selected.value !== '2') {
+                    Swal.showValidationMessage('Respuesta incorrecta. Pista: Lo más importante al principio es APRENDER.');
+                    return false;
+                }
+                return selected.value;
+            }
         }).then((result) => {
-            if (result.isConfirmed && result.value === '2') {
+            if (result.isConfirmed) {
                 appData.xp += 50;
                 saveState();
                 Swal.fire({
