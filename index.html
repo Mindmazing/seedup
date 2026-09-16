@@ -61,6 +61,9 @@
                 <input type="password" placeholder="Contraseña" required class="w-full bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 text-gray-800 dark:text-white px-4 py-2.5 rounded-lg outline-none focus:ring-1 focus:ring-gray-300 dark:focus:ring-brand-primary transition-all text-sm">
                 <button type="submit" class="w-full mt-2 bg-[#1a2035] dark:bg-brand-primary text-white dark:text-gray-900 font-bold text-sm py-3 rounded-lg hover:shadow-lg transition-all uppercase tracking-wide">Entrar</button>
             </form>
+            <div class="mt-6 text-center text-sm text-gray-500 dark:text-slate-400">
+                ¿No tienes cuenta? <a href="#" onclick="alert('El registro de usuarios estará habilitado en la próxima versión.'); return false;" class="font-bold text-[#344767] dark:text-brand-primary hover:underline">Registrar usuario</a>
+            </div>
         </div>
     </div>
 
@@ -90,6 +93,10 @@
                 <a href="#" onclick="navigate('validator', this, 'Validación')" class="nav-item flex items-center gap-3 px-4 py-2.5 rounded-lg text-gray-500 dark:text-slate-400 hover:bg-gray-100 dark:hover:bg-slate-800 transition-all font-medium text-sm">
                     <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                     Validación
+                </a>
+                <a href="#" onclick="navigate('academy', this, 'Academia')" class="nav-item flex items-center gap-3 px-4 py-2.5 rounded-lg text-gray-500 dark:text-slate-400 hover:bg-gray-100 dark:hover:bg-slate-800 transition-all font-medium text-sm">
+                    <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l9-5-9-5-9 5 9 5z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z"></path></svg>
+                    Academia
                 </a>
 
                 <!-- PROYECTOS (SIDEBAR) -->
@@ -402,6 +409,66 @@
                             <div id="val-result-box" class="mt-6 p-5 rounded-lg border border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-900 text-center font-bold text-sm text-gray-600 dark:text-slate-400 shadow-sm transition-all duration-300 flex items-center justify-center gap-3">
                                 Selecciona hitos para ver el diagnóstico.
                             </div>
+                        </div>
+                    </div>
+                <!-- ================== ACADEMIA ================== -->
+                <section id="academy" class="view hidden animate-[fadeUp_0.4s_ease_forwards]">
+                    <div class="bg-white dark:bg-brand-darkcard rounded-xl shadow-argon p-6 lg:p-8 max-w-4xl mx-auto">
+                        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4 border-b border-gray-100 dark:border-slate-700/50 pb-5">
+                            <div>
+                                <h6 class="font-bold text-[#344767] dark:text-white text-xl">Ruta del Fundador</h6>
+                                <p class="text-gray-500 dark:text-slate-400 text-sm mt-1">Completa módulos interactivos para ganar XP y desbloquear herramientas.</p>
+                            </div>
+                            <div class="bg-indigo-50 dark:bg-indigo-900/30 px-4 py-2 rounded-lg border border-indigo-100 dark:border-indigo-800 flex items-center gap-2">
+                                <svg class="w-5 h-5 text-indigo-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clip-rule="evenodd"></path></svg>
+                                <span class="text-indigo-700 dark:text-indigo-300 font-bold text-sm" id="academy-xp-badge">XP Actual: 0</span>
+                            </div>
+                        </div>
+
+                        <!-- Gamified Path -->
+                        <div class="relative space-y-8 before:absolute before:inset-0 before:ml-5 before:-translate-x-px md:before:mx-auto md:before:translate-x-0 before:h-full before:w-0.5 before:bg-gradient-to-b before:from-green-400 before:via-gray-200 before:to-gray-200 dark:before:via-slate-700 dark:before:to-slate-700">
+                            
+                            <!-- Item 1 (Done) -->
+                            <div class="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group is-active">
+                                <div class="flex items-center justify-center w-10 h-10 rounded-full border-4 border-white dark:border-brand-darkcard bg-green-500 text-white shadow shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2 z-10 cursor-pointer hover:scale-110 transition-transform" onclick="startLesson('intro')">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                                </div>
+                                <div class="w-[calc(100%-3rem)] md:w-[calc(50%-2.5rem)] bg-white dark:bg-slate-900 p-4 rounded-xl shadow-sm border border-green-200 dark:border-green-500/30 cursor-pointer hover:shadow-md transition-shadow" onclick="startLesson('intro')">
+                                    <div class="flex items-center justify-between mb-1">
+                                        <h4 class="font-bold text-[#344767] dark:text-white text-sm">1. Mentalidad Startup</h4>
+                                        <span class="text-xs font-bold text-green-500 bg-green-50 dark:bg-green-500/10 px-2 py-0.5 rounded">Completado</span>
+                                    </div>
+                                    <p class="text-xs text-gray-500 dark:text-slate-400">Descubre qué separa a una startup de un negocio tradicional.</p>
+                                </div>
+                            </div>
+
+                            <!-- Item 2 (Current) -->
+                            <div class="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group is-active">
+                                <div class="flex items-center justify-center w-10 h-10 rounded-full border-4 border-white dark:border-brand-darkcard bg-brand-primary text-gray-900 shadow shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2 z-10 cursor-pointer animate-pulse" onclick="startLesson('lean')">
+                                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd"></path></svg>
+                                </div>
+                                <div class="w-[calc(100%-3rem)] md:w-[calc(50%-2.5rem)] bg-white dark:bg-slate-900 p-4 rounded-xl shadow-sm border border-brand-primary/50 cursor-pointer hover:shadow-md transition-shadow" onclick="startLesson('lean')">
+                                    <div class="flex items-center justify-between mb-1">
+                                        <h4 class="font-bold text-[#344767] dark:text-white text-sm">2. Metodología Lean</h4>
+                                        <span class="text-xs font-bold text-blue-500 bg-blue-50 dark:bg-blue-500/10 px-2 py-0.5 rounded">+50 XP</span>
+                                    </div>
+                                    <p class="text-xs text-gray-500 dark:text-slate-400">Aprende a iterar rápido y barato. (Recomendado hoy)</p>
+                                </div>
+                            </div>
+
+                            <!-- Item 3 (Locked) -->
+                            <div class="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group">
+                                <div class="flex items-center justify-center w-10 h-10 rounded-full border-4 border-white dark:border-brand-darkcard bg-gray-200 dark:bg-slate-700 text-gray-400 shadow shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2 z-10">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+                                </div>
+                                <div class="w-[calc(100%-3rem)] md:w-[calc(50%-2.5rem)] bg-gray-50 dark:bg-slate-800/50 p-4 rounded-xl border border-gray-100 dark:border-slate-700/50 opacity-70">
+                                    <div class="flex items-center justify-between mb-1">
+                                        <h4 class="font-bold text-gray-400 dark:text-slate-500 text-sm">3. Finanzas para Startups</h4>
+                                    </div>
+                                    <p class="text-xs text-gray-400 dark:text-slate-500">Bloqueado. Alcanza el Nivel 2 para acceder.</p>
+                                </div>
+                            </div>
+
                         </div>
                     </div>
                 </section>

@@ -103,7 +103,8 @@ function updateGlobalUI() {
     
     document.getElementById('user-level-text').innerText = `Nivel ${appData.level}`;
     document.getElementById('user-xp-text').innerText = `${xpInLevel}/100 puntos`;
-    document.getElementById('user-xp-bar') ? document.getElementById('user-xp-bar').style.width = `${xpInLevel}%` : null;
+    if(document.getElementById('user-xp-bar')) document.getElementById('user-xp-bar').style.width = `${xpInLevel}%`;
+    if(document.getElementById('academy-xp-badge')) document.getElementById('academy-xp-badge').innerText = `XP Actual: ${appData.xp}`;
 }
 
 function renderSidebarProjects() {
@@ -728,5 +729,53 @@ function evaluateValidation(p) {
     } else {
         resultBox.innerHTML = '<svg class="w-8 h-8 text-red-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg> <div class="text-left"><span class="block text-red-700 dark:text-red-400 font-bold">Riesgo Extremo</span><span class="text-red-600 dark:text-red-500 font-normal">No lances sin hablar con clientes reales.</span></div>';
         resultBox.classList.add('border-red-200', 'dark:border-red-500/30', 'bg-red-50', 'dark:bg-red-500/10');
+    }
+}
+
+// ==========================================
+// ACADEMIA (RUTA DEL FUNDADOR)
+// ==========================================
+function startLesson(lessonId) {
+    if (lessonId === 'intro') {
+        Swal.fire({
+            title: 'Repaso: Mentalidad Startup',
+            text: 'Una startup está diseñada para crecer rápido bajo extrema incertidumbre. ¡Concepto dominado!',
+            icon: 'success',
+            background: getSwalBg(),
+            color: getSwalColor(),
+            confirmButtonColor: '#4ade80'
+        });
+    } else if (lessonId === 'lean') {
+        Swal.fire({
+            title: 'Lección: Metodología Lean',
+            html: '<p class="text-sm mb-4 text-left">El ciclo Lean Startup se basa en: <b>Construir, Medir, Aprender</b>.<br><br>¿Cuál es el objetivo principal de lanzar un MVP (Producto Mínimo Viable)?</p>',
+            input: 'radio',
+            inputOptions: {
+                '1': 'A) Empezar a generar ingresos de inmediato.',
+                '2': 'B) Maximizar el aprendizaje validado con el menor esfuerzo posible.',
+                '3': 'C) Tener un producto perfecto y sin errores.'
+            },
+            inputValidator: (value) => {
+                if (!value) return '¡Debes elegir una respuesta!';
+                if (value !== '2') return 'Respuesta incorrecta. Pista: Lo más importante al principio es APRENDER.';
+            },
+            confirmButtonText: 'Responder',
+            background: getSwalBg(),
+            color: getSwalColor(),
+            confirmButtonColor: '#4ade80'
+        }).then((result) => {
+            if (result.isConfirmed && result.value === '2') {
+                appData.xp += 50;
+                saveState();
+                Swal.fire({
+                    title: '¡Correcto!',
+                    text: 'Respuesta perfecta. Has ganado +50 XP.',
+                    icon: 'success',
+                    background: getSwalBg(),
+                    color: getSwalColor(),
+                    confirmButtonColor: '#4ade80'
+                });
+            }
+        });
     }
 }
