@@ -750,6 +750,15 @@ function startLesson(lessonId) {
             title: 'Lección: Metodología Lean',
             html: `
             <div class="text-left font-inter mt-2">
+                <!-- VIDEO PLACEHOLDER -->
+                <div onclick="alert('El video comenzaría a reproducirse aquí. \\n(Simulación)')" class="relative w-full aspect-video bg-gray-900 rounded-xl mb-5 overflow-hidden shadow-sm flex items-center justify-center group cursor-pointer border border-gray-800">
+                    <div class="absolute inset-0 bg-gradient-to-br from-slate-800 to-black opacity-80"></div>
+                    <div class="z-10 w-12 h-12 bg-white/10 backdrop-blur-sm text-white rounded-full flex items-center justify-center shadow-lg group-hover:scale-110 group-hover:bg-brand-primary group-hover:text-gray-900 transition-all border border-white/20 group-hover:border-brand-primary">
+                        <svg class="w-6 h-6 ml-1" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd"></path></svg>
+                    </div>
+                    <div class="absolute bottom-2 right-2 bg-black/80 text-white text-[0.65rem] font-bold px-1.5 py-0.5 rounded">03:15</div>
+                </div>
+
                 <p class="text-sm mb-5 text-[#344767] dark:text-slate-300">El ciclo Lean Startup se basa en: <b>Construir, Medir, Aprender</b>.<br><br>¿Cuál es el objetivo principal de lanzar un MVP (Producto Mínimo Viable)?</p>
                 <div class="space-y-3">
                     <label class="flex items-start gap-3 p-3 rounded-xl border border-gray-200 dark:border-slate-700 hover:bg-gray-50 dark:hover:bg-slate-800/50 cursor-pointer transition-colors group">
